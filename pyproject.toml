@@ -1,0 +1,5 @@
+[project]
+name = "PySide Widgets Project"
+
+[tool.pyside6-project]
+files = ["form.ui", "gst_video_widget.py", "image_viewer.py", "mainwindow.py", "teleop_qt.py"]

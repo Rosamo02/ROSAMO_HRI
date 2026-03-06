@@ -1,0 +1,4 @@
+#!/bin/bash
+source /opt/ros/jazzy/setup.bash
+source /home/rodrigomoreira/ros2_qt_env/bin/activate
+qtcreator

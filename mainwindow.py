@@ -8,7 +8,7 @@ from rclpy.executors import SingleThreadedExecutor
 
 from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtGui import QKeyEvent, QPixmap
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer, QTime
 
 from ui_form import Ui_MainWindow
 from gst_video_widget import GstVideoWidget
@@ -20,6 +20,8 @@ import sdl2
 import sdl2.ext
 
 from image_viewer import ImageViewer
+
+from login_manager import LoginManager
 
 
 class TeleopNode(Node):
@@ -41,6 +43,28 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
+        #Statusbar
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_status_bar)
+        self.timer.start(1000)
+
+        # Create login manager
+        self.login = LoginManager()
+
+        # Connect login button
+        self.ui.Login_Button.clicked.connect(self.handle_login)
+
+        #Hide the sidebar on startup
+        self.ui.sidebarWidget.setVisible(False)
+
+        #Connect Sidebar buttons
+
+        self.ui.Main_Button.clicked.connect(lambda: self.switch_page(self.ui.Main_pg))
+        self.ui.Alarm_Button.clicked.connect(lambda: self.switch_page(self.ui.Alarm_pg))
+        self.ui.Home_Button.clicked.connect(lambda: self.switch_page(self.ui.Home_pg))
+
+        self.switch_page(self.ui.Login_pg)
+
         # Setup for video stream from depth camera
         self.ui.videoLabel.setText("Waiting for RealSense...")
         self.ui.videoLabel.setScaledContents(True)
@@ -56,7 +80,7 @@ class MainWindow(QMainWindow):
 
         # Image viewer node (compressed RealSense)
         self.image_node = ImageViewer(
-            topic="/camera/camera/color/image_raw/compressed"
+            topic="/apriltag/overlay/compressed"
         )
         self.image_node.new_frame.connect(self.update_image)
 
@@ -258,6 +282,23 @@ class MainWindow(QMainWindow):
         rclpy.shutdown()
         super().closeEvent(event)
 
+    def switch_page(self, page):
+        """Switch the QStackedWidget to the given page."""
+        self.ui.stackedWidget.setCurrentWidget(page)
+
+    def handle_login(self):
+        username = self.ui.usernameField.text()
+        password = self.ui.passwordField.text()
+
+        if self.login.validate(username, password):
+            self.ui.sidebarWidget.setVisible(True)
+            print("Successful login")
+        else:
+            print("Failed login")
+
+    def update_status_bar(self):
+        current_time = QTime.currentTime().toString("HH:mm:ss")
+        self.ui.labelTime.setText(f"Time: {current_time}")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

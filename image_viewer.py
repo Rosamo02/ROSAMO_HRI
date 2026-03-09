@@ -3,6 +3,7 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import CompressedImage
 from cv_bridge import CvBridge
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy
 
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtGui import QImage
@@ -13,17 +14,23 @@ import numpy as np
 class ImageViewer(Node, QObject):
     new_frame = Signal(QImage)
 
-    def __init__(self, topic="/camera/camera/color/image_raw/compressed"):
+    def __init__(self, topic="/apriltag/overlay/compressed"):
         Node.__init__(self, "qt_image_viewer")
         QObject.__init__(self)
 
         self.bridge = CvBridge()
 
+        sensor_qos = QoSProfile(
+            reliability=QoSReliabilityPolicy.BEST_EFFORT,
+            history=QoSHistoryPolicy.KEEP_LAST,
+            depth=1
+        )
+
         self.subscription = self.create_subscription(
             CompressedImage,
             topic,
             self.callback,
-            10
+            qos_profile=sensor_qos
         )
 
     def callback(self, msg):

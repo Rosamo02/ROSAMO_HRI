@@ -129,12 +129,12 @@ class MainWindow(QMainWindow):
                 break
 
         if self.controller is None:
-            print("[SDL2] No controller detected!")
+            print("No controller detected")
 
         self.rb_down = False
 
         # Start SDL2 polling thread
-        print("[SDL2] Starting controller polling thread...")
+        print("Starting controller polling thread...")
         self.sdl_thread = threading.Thread(target=self.poll_controller, daemon=True)
         self.sdl_thread.start()
 
@@ -144,11 +144,11 @@ class MainWindow(QMainWindow):
         if self.current_mode == "keyboard":
             self.current_mode = "controller"
             self.ui.toggleInputButton.setText("Use Keyboard")
-            print("[MODE] Switched to CONTROLLER mode")
+            print("Switched to CONTROLLER mode")
         else:
             self.current_mode = "keyboard"
             self.ui.toggleInputButton.setText("Use Controller")
-            print("[MODE] Switched to KEYBOARD mode")
+            print("Switched to KEYBOARD mode")
 
         # Reset motion when switching modes
         self.linear = 0.0
@@ -238,7 +238,7 @@ class MainWindow(QMainWindow):
 
         value = axis_event.value / 32767.0
 
-        # Dead-man switch not pressed → stop immediately
+        # Dead-man switch not pressed -> stop immediately
         if not self.rb_down:
             self.linear = 0.0
             self.angular = 0.0
@@ -283,7 +283,6 @@ class MainWindow(QMainWindow):
         super().closeEvent(event)
 
     def switch_page(self, page):
-        """Switch the QStackedWidget to the given page."""
         self.ui.stackedWidget.setCurrentWidget(page)
 
     def handle_login(self):

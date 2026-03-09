@@ -1,14 +1,20 @@
 # mainwindow.py
 # This Python file uses the following encoding: utf-8
+import os
+
 import sys
 import threading
 import rclpy
 from rclpy.node import Node
 from rclpy.executors import SingleThreadedExecutor
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy
 
 from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtGui import QKeyEvent, QPixmap
 from PySide6.QtCore import Qt, QTimer, QTime
+from PySide6.QtWebEngineWidgets import QWebEngineView
+from PySide6.QtCore import QUrl
+from PySide6.QtWebEngineCore import QWebEngineSettings
 
 from ui_form import Ui_MainWindow
 from gst_video_widget import GstVideoWidget
@@ -23,6 +29,40 @@ from image_viewer import ImageViewer
 
 from login_manager import LoginManager
 
+from px4_msgs.msg import BatteryStatus
+
+class BatteryNode(Node):
+    def __init__(self, ui):
+        super().__init__('battery_node')
+        self.ui = ui
+
+        qos = QoSProfile(
+            reliability=QoSReliabilityPolicy.BEST_EFFORT,
+            history=QoSHistoryPolicy.KEEP_LAST,
+            depth=1
+        )
+
+        self.battery_sub = self.create_subscription(
+            BatteryStatus,
+            '/fmu/out/battery_status_v1',
+            self.battery_callback,
+            qos
+        )
+
+
+    def battery_callback(self, msg):
+        percent = int(msg.remaining * 100)
+
+        # Update the Qt label safely using Qt's thread
+        self.ui.labelBattery.setText(f"Battery: {percent}%")
+
+        # Optional color coding
+        if percent > 50:
+            self.ui.labelBattery.setStyleSheet("color: green;")
+        elif percent > 20:
+            self.ui.labelBattery.setStyleSheet("color: orange;")
+        else:
+            self.ui.labelBattery.setStyleSheet("color: red; font-weight: bold;")
 
 class TeleopNode(Node):
     def __init__(self):
@@ -42,6 +82,7 @@ class MainWindow(QMainWindow):
         super().__init__(parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        rclpy.init()
 
         #Statusbar
         self.timer = QTimer()
@@ -57,11 +98,20 @@ class MainWindow(QMainWindow):
         #Hide the sidebar on startup
         self.ui.sidebarWidget.setVisible(False)
 
+        #sidebar button mapping
+
+        self.nav_map = {
+            self.ui.Home_Button: self.ui.Home_pg,
+            self.ui.Main_Button: self.ui.Main_pg,
+            self.ui.Alarm_Button: self.ui.Alarm_pg,
+            self.ui.Map_Button: self.ui.Map_pg,
+            self.ui.Settings_Button: self.ui.Settings_pg
+        }
+
         #Connect Sidebar buttons
 
-        self.ui.Main_Button.clicked.connect(lambda: self.switch_page(self.ui.Main_pg))
-        self.ui.Alarm_Button.clicked.connect(lambda: self.switch_page(self.ui.Alarm_pg))
-        self.ui.Home_Button.clicked.connect(lambda: self.switch_page(self.ui.Home_pg))
+        for button, page in self.nav_map.items():
+            button.clicked.connect(lambda _, p=page, b=button: self.navigate(p, b))
 
         self.switch_page(self.ui.Login_pg)
 
@@ -72,9 +122,6 @@ class MainWindow(QMainWindow):
         # Track keyboard state
         self.keys_down = {"space": False, "w": False, "a": False, "s": False, "d": False}
 
-        # Init ROS
-        rclpy.init()
-
         # Teleop node
         self.teleop_node = TeleopNode()
 
@@ -84,10 +131,14 @@ class MainWindow(QMainWindow):
         )
         self.image_node.new_frame.connect(self.update_image)
 
+        #create battery node
+        self.battery_node = BatteryNode(self.ui)
         # Start ROS executor thread with both nodes
         self.executor = SingleThreadedExecutor()
         self.executor.add_node(self.teleop_node)
         self.executor.add_node(self.image_node)
+        self.executor.add_node(self.battery_node)
+
 
         self.ros_thread = threading.Thread(target=self.executor.spin, daemon=True)
         self.ros_thread.start()
@@ -137,6 +188,38 @@ class MainWindow(QMainWindow):
         print("Starting controller polling thread...")
         self.sdl_thread = threading.Thread(target=self.poll_controller, daemon=True)
         self.sdl_thread.start()
+
+        #Initializing the map
+        html_path = "/home/rodrigomoreira/Rosamo_3/map_assets/map.html"
+        print("Loading:", html_path)
+
+        settings = self.ui.mapView.settings()
+        settings.setAttribute(QWebEngineSettings.JavascriptEnabled, True)
+        settings.setAttribute(QWebEngineSettings.LocalContentCanAccessFileUrls, True)
+        settings.setAttribute(QWebEngineSettings.LocalContentCanAccessRemoteUrls, True)
+        self.ui.mapView.load(QUrl.fromLocalFile(html_path))
+
+        #more debugging ( important to delete)
+
+        def test_js():
+            print("Running JS test...")
+            self.ui.mapView.page().runJavaScript("centerOnRobot();")
+            self.ui.mapView.page().runJavaScript("updateRobot(41.1580, -8.6295);")
+
+        QTimer.singleShot(3000, test_js)
+
+        #Debugging(delete later)
+        print([name for name in dir(self.ui) if "Battery" in name])
+        print(type(self.ui.mapView))
+        print("Loading:", html_path)
+        print("HTML path:", html_path)
+
+
+
+
+
+
+
 
     # MODE SWITCHING
 
@@ -285,6 +368,35 @@ class MainWindow(QMainWindow):
     def switch_page(self, page):
         self.ui.stackedWidget.setCurrentWidget(page)
 
+    def navigate(self, page, button):
+        # Switch page
+        self.ui.stackedWidget.setCurrentWidget(page)
+
+        # Reset all button styles
+        for btn in self.nav_map.keys():
+            btn.setStyleSheet("""
+                QPushButton {
+                    background-color: none;
+                    color: white;
+                    border: none;
+                    text-align: left;
+                    padding: 8px;
+                }
+            """)
+
+        # Highlight active button
+        button.setStyleSheet("""
+            QPushButton {
+                background-color: #2d89ef;
+                color: white;
+                font-weight: bold;
+                border: none;
+                text-align: middle;
+                padding: 8px;
+            }
+        """)
+
+
     def handle_login(self):
         username = self.ui.usernameField.text()
         password = self.ui.passwordField.text()
@@ -300,6 +412,7 @@ class MainWindow(QMainWindow):
         self.ui.labelTime.setText(f"Time: {current_time}")
 
 if __name__ == "__main__":
+    os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--allow-file-access-from-files"
     app = QApplication(sys.argv)
     widget = MainWindow()
     widget.show()

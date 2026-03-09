@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Robot Map</title>
+
+    <link rel="stylesheet" href="file:///home/rodrigomoreira/Rosamo_3/map_assets/leaflet.css" />
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body onload="console.log('HTML loaded');">
+    <div id="map"></div>
+
+    <script src="file:///home/rodrigomoreira/Rosamo_3/map_assets/leaflet.js"></script>
+
+    <script>
+        console.log("Leaflet loaded? L =", typeof L);
+
+        L.Icon.Default.mergeOptions({
+            iconUrl: "file:///home/rodrigomoreira/Rosamo_3/map_assets/marker-icon.png",
+            shadowUrl: "file:///home/rodrigomoreira/Rosamo_3/map_assets/marker-shadow.png"
+        });
+
+        var map = L.map('map').setView([41.1579, -8.6291], 16);
+
+        L.tileLayer(
+            'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+            {
+                maxZoom: 19,
+                attribution: 'Tiles © Esri'
+            }
+        ).addTo(map);
+
+
+        var robotMarker = L.marker([41.1579, -8.6291]).addTo(map);
+        var operatorMarker = L.marker([41.1585, -8.6285]).addTo(map);
+
+        function updateRobot(lat, lon) {
+            robotMarker.setLatLng([lat, lon]);
+        }
+
+        function updateOperator(lat, lon) {
+            operatorMarker.setLatLng([lat, lon]);
+        }
+
+        function centerOnRobot() {
+            map.setView(robotMarker.getLatLng(), 18);
+        }
+
+        window.updateRobot = updateRobot;
+        window.updateOperator = updateOperator;
+        window.centerOnRobot = centerOnRobot;
+
+        console.log("Map initialized");
+    </script>
+</body>
+</html>

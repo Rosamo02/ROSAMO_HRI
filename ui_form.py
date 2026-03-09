@@ -19,6 +19,9 @@ from PySide6.QtWidgets import (QApplication, QLabel, QLineEdit, QMainWindow,
     QMenuBar, QPushButton, QSizePolicy, QStackedWidget,
     QStatusBar, QTextEdit, QVBoxLayout, QWidget)
 
+from PySide6.QtWebEngineWidgets import QWebEngineView
+
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
@@ -30,26 +33,36 @@ class Ui_MainWindow(object):
 "background-color: rgb(0, 0, 0);")
         self.stackedWidget = QStackedWidget(self.widget)
         self.stackedWidget.setObjectName(u"stackedWidget")
-        self.stackedWidget.setGeometry(QRect(100, 0, 1291, 781))
+        self.stackedWidget.setGeometry(QRect(90, 80, 1291, 781))
         self.Main_pg = QWidget()
         self.Main_pg.setObjectName(u"Main_pg")
         self.Main_pg.setStyleSheet(u"background-color: rgb(255, 255, 255);\n"
 "background-color: rgb(255, 163, 72);")
         self.videoLabel = QLabel(self.Main_pg)
         self.videoLabel.setObjectName(u"videoLabel")
-        self.videoLabel.setGeometry(QRect(530, 110, 431, 271))
+        self.videoLabel.setGeometry(QRect(460, 10, 441, 281))
         self.toggleInputButton = QPushButton(self.Main_pg)
         self.toggleInputButton.setObjectName(u"toggleInputButton")
-        self.toggleInputButton.setGeometry(QRect(250, 580, 201, 121))
+        self.toggleInputButton.setGeometry(QRect(10, 510, 201, 121))
         self.toggleInputButton.setStyleSheet(u"color: rgb(255, 255, 255);\n"
 "background-color: rgb(245, 194, 17);")
         self.verticalLayoutWidget = QWidget(self.Main_pg)
         self.verticalLayoutWidget.setObjectName(u"verticalLayoutWidget")
-        self.verticalLayoutWidget.setGeometry(QRect(40, 100, 431, 281))
+        self.verticalLayoutWidget.setGeometry(QRect(10, 10, 431, 281))
         self.videoLayout = QVBoxLayout(self.verticalLayoutWidget)
         self.videoLayout.setObjectName(u"videoLayout")
         self.videoLayout.setContentsMargins(0, 0, 0, 0)
         self.stackedWidget.addWidget(self.Main_pg)
+        self.Settings_pg = QWidget()
+        self.Settings_pg.setObjectName(u"Settings_pg")
+        self.stackedWidget.addWidget(self.Settings_pg)
+        self.Map_pg = QWidget()
+        self.Map_pg.setObjectName(u"Map_pg")
+        self.Map_pg.setStyleSheet(u"background-color: rgb(87, 227, 137);")
+        self.mapView = QWebEngineView(self.Map_pg)
+        self.mapView.setObjectName(u"mapView")
+        self.mapView.setGeometry(QRect(99, 79, 541, 441))
+        self.stackedWidget.addWidget(self.Map_pg)
         self.Login_pg = QWidget()
         self.Login_pg.setObjectName(u"Login_pg")
         self.Login_pg.setStyleSheet(u"background-color: rgb(255, 255, 255);")
@@ -77,29 +90,72 @@ class Ui_MainWindow(object):
         self.stackedWidget.addWidget(self.Alarm_pg)
         self.sidebarWidget = QWidget(self.widget)
         self.sidebarWidget.setObjectName(u"sidebarWidget")
-        self.sidebarWidget.setGeometry(QRect(0, 70, 91, 921))
+        self.sidebarWidget.setGeometry(QRect(0, 80, 91, 921))
         self.Home_Button = QPushButton(self.sidebarWidget)
         self.Home_Button.setObjectName(u"Home_Button")
         self.Home_Button.setGeometry(QRect(0, 0, 101, 61))
+        self.Home_Button.setStyleSheet(u"QPushButton {\n"
+"    background-color: none;\n"
+"    color: white;\n"
+"    border: none;\n"
+"    text-align: left;\n"
+"    padding: 8px;\n"
+"}\n"
+"")
         self.Main_Button = QPushButton(self.sidebarWidget)
         self.Main_Button.setObjectName(u"Main_Button")
         self.Main_Button.setGeometry(QRect(0, 60, 101, 61))
+        self.Main_Button.setStyleSheet(u"QPushButton {\n"
+"    background-color: none;\n"
+"    color: white;\n"
+"    border: none;\n"
+"    text-align: left;\n"
+"    padding: 8px;\n"
+"}\n"
+"")
         self.Alarm_Button = QPushButton(self.sidebarWidget)
         self.Alarm_Button.setObjectName(u"Alarm_Button")
         self.Alarm_Button.setGeometry(QRect(0, 120, 101, 61))
-        self.Alarm_Button_2 = QPushButton(self.sidebarWidget)
-        self.Alarm_Button_2.setObjectName(u"Alarm_Button_2")
-        self.Alarm_Button_2.setGeometry(QRect(0, 180, 101, 61))
-        self.Alarm_Button_3 = QPushButton(self.sidebarWidget)
-        self.Alarm_Button_3.setObjectName(u"Alarm_Button_3")
-        self.Alarm_Button_3.setGeometry(QRect(0, 240, 101, 61))
+        self.Alarm_Button.setStyleSheet(u"QPushButton {\n"
+"    background-color: none;\n"
+"    color: white;\n"
+"    border: none;\n"
+"    text-align: left;\n"
+"    padding: 8px;\n"
+"}\n"
+"")
+        self.Settings_Button = QPushButton(self.sidebarWidget)
+        self.Settings_Button.setObjectName(u"Settings_Button")
+        self.Settings_Button.setGeometry(QRect(0, 180, 101, 61))
+        self.Settings_Button.setStyleSheet(u"QPushButton {\n"
+"    background-color: none;\n"
+"    color: white;\n"
+"    border: none;\n"
+"    text-align: left;\n"
+"    padding: 8px;\n"
+"}\n"
+"")
+        self.Map_Button = QPushButton(self.sidebarWidget)
+        self.Map_Button.setObjectName(u"Map_Button")
+        self.Map_Button.setGeometry(QRect(0, 240, 101, 61))
+        self.Map_Button.setStyleSheet(u"QPushButton {\n"
+"    background-color: none;\n"
+"    color: white;\n"
+"    border: none;\n"
+"    text-align: left;\n"
+"    padding: 8px;\n"
+"}\n"
+"")
         self.statusWidget = QWidget(self.widget)
         self.statusWidget.setObjectName(u"statusWidget")
-        self.statusWidget.setGeometry(QRect(0, -10, 1331, 80))
+        self.statusWidget.setGeometry(QRect(-140, 0, 1481, 81))
         self.statusWidget.setStyleSheet(u"background-color: rgb(192, 191, 188);")
         self.labelTime = QLabel(self.statusWidget)
         self.labelTime.setObjectName(u"labelTime")
-        self.labelTime.setGeometry(QRect(170, 30, 421, 18))
+        self.labelTime.setGeometry(QRect(150, 0, 421, 18))
+        self.labelBattery = QLabel(self.statusWidget)
+        self.labelBattery.setObjectName(u"labelBattery")
+        self.labelBattery.setGeometry(QRect(150, 50, 421, 18))
         MainWindow.setCentralWidget(self.widget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
@@ -134,8 +190,9 @@ class Ui_MainWindow(object):
         self.Home_Button.setText(QCoreApplication.translate("MainWindow", u"Home", None))
         self.Main_Button.setText(QCoreApplication.translate("MainWindow", u"Main", None))
         self.Alarm_Button.setText(QCoreApplication.translate("MainWindow", u"Alarms", None))
-        self.Alarm_Button_2.setText(QCoreApplication.translate("MainWindow", u"Settings", None))
-        self.Alarm_Button_3.setText(QCoreApplication.translate("MainWindow", u"Map", None))
+        self.Settings_Button.setText(QCoreApplication.translate("MainWindow", u"Settings", None))
+        self.Map_Button.setText(QCoreApplication.translate("MainWindow", u"Map", None))
         self.labelTime.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
+        self.labelBattery.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
     # retranslateUi
 

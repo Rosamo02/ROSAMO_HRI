@@ -21,8 +21,8 @@ background-color: rgb(0, 0, 0);</string>
    <widget class="QStackedWidget" name="stackedWidget">
     <property name="geometry">
      <rect>
-      <x>100</x>
-      <y>0</y>
+      <x>90</x>
+      <y>80</y>
       <width>1291</width>
       <height>781</height>
      </rect>
@@ -35,10 +35,10 @@ background-color: rgb(255, 163, 72);</string>
      <widget class="QLabel" name="videoLabel">
       <property name="geometry">
        <rect>
-        <x>530</x>
-        <y>110</y>
-        <width>431</width>
-        <height>271</height>
+        <x>460</x>
+        <y>10</y>
+        <width>441</width>
+        <height>281</height>
        </rect>
       </property>
       <property name="text">
@@ -48,8 +48,8 @@ background-color: rgb(255, 163, 72);</string>
      <widget class="QPushButton" name="toggleInputButton">
       <property name="geometry">
        <rect>
-        <x>250</x>
-        <y>580</y>
+        <x>10</x>
+        <y>510</y>
         <width>201</width>
         <height>121</height>
        </rect>
@@ -65,13 +65,29 @@ background-color: rgb(245, 194, 17);</string>
      <widget class="QWidget" name="verticalLayoutWidget">
       <property name="geometry">
        <rect>
-        <x>40</x>
-        <y>100</y>
+        <x>10</x>
+        <y>10</y>
         <width>431</width>
         <height>281</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="videoLayout"/>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="Settings_pg"/>
+    <widget class="QWidget" name="Map_pg">
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(87, 227, 137);</string>
+     </property>
+     <widget class="QWebEngineView&#10;" name="mapView" native="true">
+      <property name="geometry">
+       <rect>
+        <x>99</x>
+        <y>79</y>
+        <width>541</width>
+        <height>441</height>
+       </rect>
+      </property>
      </widget>
     </widget>
     <widget class="QWidget" name="Login_pg">
@@ -153,7 +169,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>70</y>
+      <y>80</y>
       <width>91</width>
       <height>921</height>
      </rect>
@@ -166,6 +182,16 @@ li.checked::marker { content: &quot;\2612&quot;; }
        <width>101</width>
        <height>61</height>
       </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+    background-color: none;
+    color: white;
+    border: none;
+    text-align: left;
+    padding: 8px;
+}
+</string>
      </property>
      <property name="text">
       <string>Home</string>
@@ -180,6 +206,16 @@ li.checked::marker { content: &quot;\2612&quot;; }
        <height>61</height>
       </rect>
      </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+    background-color: none;
+    color: white;
+    border: none;
+    text-align: left;
+    padding: 8px;
+}
+</string>
+     </property>
      <property name="text">
       <string>Main</string>
      </property>
@@ -193,11 +229,21 @@ li.checked::marker { content: &quot;\2612&quot;; }
        <height>61</height>
       </rect>
      </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+    background-color: none;
+    color: white;
+    border: none;
+    text-align: left;
+    padding: 8px;
+}
+</string>
+     </property>
      <property name="text">
       <string>Alarms</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="Alarm_Button_2">
+    <widget class="QPushButton" name="Settings_Button">
      <property name="geometry">
       <rect>
        <x>0</x>
@@ -206,11 +252,21 @@ li.checked::marker { content: &quot;\2612&quot;; }
        <height>61</height>
       </rect>
      </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+    background-color: none;
+    color: white;
+    border: none;
+    text-align: left;
+    padding: 8px;
+}
+</string>
+     </property>
      <property name="text">
       <string>Settings</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="Alarm_Button_3">
+    <widget class="QPushButton" name="Map_Button">
      <property name="geometry">
       <rect>
        <x>0</x>
@@ -218,6 +274,16 @@ li.checked::marker { content: &quot;\2612&quot;; }
        <width>101</width>
        <height>61</height>
       </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+    background-color: none;
+    color: white;
+    border: none;
+    text-align: left;
+    padding: 8px;
+}
+</string>
      </property>
      <property name="text">
       <string>Map</string>
@@ -227,10 +293,10 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <widget class="QWidget" name="statusWidget" native="true">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>-10</y>
-      <width>1331</width>
-      <height>80</height>
+      <x>-140</x>
+      <y>0</y>
+      <width>1481</width>
+      <height>81</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -239,8 +305,21 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <widget class="QLabel" name="labelTime">
      <property name="geometry">
       <rect>
-       <x>170</x>
-       <y>30</y>
+       <x>150</x>
+       <y>0</y>
+       <width>421</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="labelBattery">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>50</y>
        <width>421</width>
        <height>18</height>
       </rect>
@@ -263,6 +342,16 @@ li.checked::marker { content: &quot;\2612&quot;; }
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QWebEngineView
+</class>
+   <extends>QWidget</extends>
+   <header>PySide6.QtWebEngineWidgets
+</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

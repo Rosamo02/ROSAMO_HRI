@@ -61,7 +61,7 @@ class Ui_MainWindow(object):
         self.Map_pg.setStyleSheet(u"background-color: rgb(87, 227, 137);")
         self.mapView = QWebEngineView(self.Map_pg)
         self.mapView.setObjectName(u"mapView")
-        self.mapView.setGeometry(QRect(99, 79, 541, 441))
+        self.mapView.setGeometry(QRect(-1, -1, 1231, 641))
         self.stackedWidget.addWidget(self.Map_pg)
         self.Login_pg = QWidget()
         self.Login_pg.setObjectName(u"Login_pg")

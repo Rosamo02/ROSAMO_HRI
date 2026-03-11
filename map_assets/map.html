@@ -41,6 +41,27 @@
             }
         ).addTo(map);
 
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function(pos) {
+                    var lat = pos.coords.latitude;
+                    var lon = pos.coords.longitude;
+
+                    console.log("Laptop location:", lat, lon);
+
+                    // Add a marker for your laptop
+                    L.marker([lat, lon], { title: "You" }).addTo(map);
+
+                    // Center map on your location
+                    map.setView([lat, lon], 16);
+                },
+                function(err) {
+                    console.log("Geolocation error:", err);
+                }
+            );
+        } else {
+            console.log("Geolocation not supported");
+        }
 
         var robotMarker = L.marker([41.1579, -8.6291]).addTo(map);
         var operatorMarker = L.marker([41.1585, -8.6285]).addTo(map);

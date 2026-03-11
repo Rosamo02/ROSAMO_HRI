@@ -82,10 +82,10 @@ background-color: rgb(245, 194, 17);</string>
      <widget class="QWebEngineView&#10;" name="mapView" native="true">
       <property name="geometry">
        <rect>
-        <x>99</x>
-        <y>79</y>
-        <width>541</width>
-        <height>441</height>
+        <x>-1</x>
+        <y>-1</y>
+        <width>1231</width>
+        <height>641</height>
        </rect>
       </property>
      </widget>

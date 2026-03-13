@@ -4,8 +4,12 @@ import sys
 import threading
 import rclpy
 from rclpy.executors import SingleThreadedExecutor
+from alarm_manager import AlarmManager
+from alarm import AlarmSeverity
 
-from PySide6.QtWidgets import QMainWindow
+
+from PySide6.QtWidgets import QMainWindow,QTableWidgetItem
+
 from PySide6.QtGui import QKeyEvent, QPixmap
 from PySide6.QtCore import Qt, QTimer, QTime
 
@@ -101,6 +105,41 @@ class MainWindow(QMainWindow):
 
         # Map setup
         setup_map(self.ui.mapView)
+
+
+        #Alarm Setup
+        self.ui.tableWidget.setColumnCount(4)
+        self.ui.tableWidget.setHorizontalHeaderLabels(
+            ["Time", "Severity", "Code", "Message"]
+        )
+        self.ui.tableWidget.horizontalHeader().setStretchLastSection(True)
+
+
+        #Alarm manager
+        self.alarm_manager = AlarmManager()
+
+        # Connect signals
+        self.alarm_manager.alarmRaised.connect(self.add_alarm_to_table)
+        self.alarm_manager.alarmCleared.connect(self.remove_alarm_from_table)
+
+        #BlinkerAlarm
+
+        self.blink_timer = QTimer()
+        self.blink_timer.timeout.connect(self.toggle_alarm_icon)
+        self.blink_state = False
+
+        #connect ack button
+
+        self.ui.ackButton.clicked.connect(self.acknowledge_alarms)
+
+        self.alarm_manager.unacknowledgedChanged.connect(self.handle_unacknowledged_change)
+
+        #Debugging
+        self.alarm_manager.raise_alarm(
+            "TEST_1",
+            "This is a test alarm",
+            AlarmSeverity.WARNING
+        )
 
         print("MainWindow initialized successfully.")
 
@@ -212,6 +251,46 @@ class MainWindow(QMainWindow):
     # Image Update
     def update_image(self, qimg):
         self.ui.videoLabel.setPixmap(QPixmap.fromImage(qimg))
+
+    def add_alarm_to_table(self, alarm):
+        table = self.ui.tableWidget
+        row = table.rowCount()
+        table.insertRow(row)
+
+        table.setItem(row, 0, QTableWidgetItem(alarm.timestamp.strftime("%Y-%m-%d %H:%M:%S")))
+        table.setItem(row, 1, QTableWidgetItem(alarm.severity.name))
+        table.setItem(row, 2, QTableWidgetItem(alarm.code))
+        table.setItem(row, 3, QTableWidgetItem(alarm.message))
+
+    def remove_alarm_from_table(self, code):
+        table = self.ui.tableWidget
+        for row in range(table.rowCount()):
+                if table.item(row, 2).text() == code:
+                    table.removeRow(row)
+                    break
+
+    def handle_unacknowledged_change(self, has_unack):
+        if has_unack:
+            self.blink_timer.start(500)  # blink every 0.5 seconds
+        else:
+            self.blink_timer.stop()
+            self.blink_state = False
+            pix = QPixmap("icons/greyicon.png").scaled(
+                32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation
+            )
+            self.ui.alarmIcon.setPixmap(pix)
+
+    def toggle_alarm_icon(self):
+        self.blink_state = not self.blink_state
+        icon = "icons/redicon.png" if self.blink_state else "icons/greyicon.png"
+
+        pix = QPixmap(icon).scaled(
+            32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation
+        )
+        self.ui.alarmIcon.setPixmap(pix)
+
+    def acknowledge_alarms(self):
+        self.alarm_manager.acknowledge()
 
     # Close Event
     def closeEvent(self, event):

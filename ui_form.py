@@ -15,9 +15,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QLabel, QLineEdit, QMainWindow,
-    QMenuBar, QPushButton, QSizePolicy, QStackedWidget,
-    QStatusBar, QTextEdit, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QHeaderView, QLabel, QLineEdit,
+    QMainWindow, QMenuBar, QPushButton, QSizePolicy,
+    QStackedWidget, QStatusBar, QTableWidget, QTableWidgetItem,
+    QTextEdit, QVBoxLayout, QWidget)
 
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
@@ -53,6 +54,19 @@ class Ui_MainWindow(object):
         self.videoLayout.setObjectName(u"videoLayout")
         self.videoLayout.setContentsMargins(0, 0, 0, 0)
         self.stackedWidget.addWidget(self.Main_pg)
+        self.Main_2_pg = QWidget()
+        self.Main_2_pg.setObjectName(u"Main_2_pg")
+        self.Main_2_pg.setStyleSheet(u"background-color: rgb(246, 211, 45);")
+        self.widget_2 = QWidget(self.Main_2_pg)
+        self.widget_2.setObjectName(u"widget_2")
+        self.widget_2.setGeometry(QRect(-1, -1, 1221, 641))
+        self.verticalLayoutWidget_2 = QWidget(self.widget_2)
+        self.verticalLayoutWidget_2.setObjectName(u"verticalLayoutWidget_2")
+        self.verticalLayoutWidget_2.setGeometry(QRect(-1, -1, 1231, 641))
+        self.verticalLayout = QVBoxLayout(self.verticalLayoutWidget_2)
+        self.verticalLayout.setObjectName(u"verticalLayout")
+        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
+        self.stackedWidget.addWidget(self.Main_2_pg)
         self.Settings_pg = QWidget()
         self.Settings_pg.setObjectName(u"Settings_pg")
         self.stackedWidget.addWidget(self.Settings_pg)
@@ -87,6 +101,15 @@ class Ui_MainWindow(object):
         self.Alarm_pg = QWidget()
         self.Alarm_pg.setObjectName(u"Alarm_pg")
         self.Alarm_pg.setStyleSheet(u"background-color: rgb(153, 193, 241);")
+        self.AlarmPage = QWidget(self.Alarm_pg)
+        self.AlarmPage.setObjectName(u"AlarmPage")
+        self.AlarmPage.setGeometry(QRect(-1, -1, 1261, 671))
+        self.tableWidget = QTableWidget(self.AlarmPage)
+        self.tableWidget.setObjectName(u"tableWidget")
+        self.tableWidget.setGeometry(QRect(5, 1, 1231, 661))
+        self.ackButton = QPushButton(self.AlarmPage)
+        self.ackButton.setObjectName(u"ackButton")
+        self.ackButton.setGeometry(QRect(30, 610, 161, 26))
         self.stackedWidget.addWidget(self.Alarm_pg)
         self.sidebarWidget = QWidget(self.widget)
         self.sidebarWidget.setObjectName(u"sidebarWidget")
@@ -148,14 +171,19 @@ class Ui_MainWindow(object):
 "")
         self.statusWidget = QWidget(self.widget)
         self.statusWidget.setObjectName(u"statusWidget")
-        self.statusWidget.setGeometry(QRect(-140, 0, 1481, 81))
-        self.statusWidget.setStyleSheet(u"background-color: rgb(192, 191, 188);")
+        self.statusWidget.setGeometry(QRect(-130, 0, 1481, 81))
+        self.statusWidget.setStyleSheet(u"background-color: rgb(255, 255, 255);")
         self.labelTime = QLabel(self.statusWidget)
         self.labelTime.setObjectName(u"labelTime")
         self.labelTime.setGeometry(QRect(150, 0, 421, 18))
         self.labelBattery = QLabel(self.statusWidget)
         self.labelBattery.setObjectName(u"labelBattery")
         self.labelBattery.setGeometry(QRect(150, 50, 421, 18))
+        self.alarmIcon = QLabel(self.statusWidget)
+        self.alarmIcon.setObjectName(u"alarmIcon")
+        self.alarmIcon.setGeometry(QRect(1090, 10, 41, 31))
+        self.alarmIcon.setPixmap(QPixmap(u"icons/greyicon.png"))
+        self.alarmIcon.setScaledContents(True)
         MainWindow.setCentralWidget(self.widget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
@@ -187,6 +215,7 @@ class Ui_MainWindow(object):
                         "></p>\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:22pt;\"><br /></p></body></html>", None))
         self.Login_Button.setText(QCoreApplication.translate("MainWindow", u"Login", None))
+        self.ackButton.setText(QCoreApplication.translate("MainWindow", u"Acknowledge Alarm", None))
         self.Home_Button.setText(QCoreApplication.translate("MainWindow", u"Home", None))
         self.Main_Button.setText(QCoreApplication.translate("MainWindow", u"Main", None))
         self.Alarm_Button.setText(QCoreApplication.translate("MainWindow", u"Alarms", None))
@@ -194,5 +223,6 @@ class Ui_MainWindow(object):
         self.Map_Button.setText(QCoreApplication.translate("MainWindow", u"Map", None))
         self.labelTime.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.labelBattery.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
+        self.alarmIcon.setText("")
     # retranslateUi
 

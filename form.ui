@@ -74,6 +74,32 @@ background-color: rgb(245, 194, 17);</string>
       <layout class="QVBoxLayout" name="videoLayout"/>
      </widget>
     </widget>
+    <widget class="QWidget" name="Main_2_pg">
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(246, 211, 45);</string>
+     </property>
+     <widget class="QWidget" name="widget_2" native="true">
+      <property name="geometry">
+       <rect>
+        <x>-1</x>
+        <y>-1</y>
+        <width>1221</width>
+        <height>641</height>
+       </rect>
+      </property>
+      <widget class="QWidget" name="verticalLayoutWidget_2">
+       <property name="geometry">
+        <rect>
+         <x>-1</x>
+         <y>-1</y>
+         <width>1231</width>
+         <height>641</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout"/>
+      </widget>
+     </widget>
+    </widget>
     <widget class="QWidget" name="Settings_pg"/>
     <widget class="QWidget" name="Map_pg">
      <property name="styleSheet">
@@ -163,6 +189,39 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <property name="styleSheet">
       <string notr="true">background-color: rgb(153, 193, 241);</string>
      </property>
+     <widget class="QWidget" name="AlarmPage" native="true">
+      <property name="geometry">
+       <rect>
+        <x>-1</x>
+        <y>-1</y>
+        <width>1261</width>
+        <height>671</height>
+       </rect>
+      </property>
+      <widget class="QTableWidget" name="tableWidget">
+       <property name="geometry">
+        <rect>
+         <x>5</x>
+         <y>1</y>
+         <width>1231</width>
+         <height>661</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="ackButton">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>610</y>
+         <width>161</width>
+         <height>26</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Acknowledge Alarm</string>
+       </property>
+      </widget>
+     </widget>
     </widget>
    </widget>
    <widget class="QWidget" name="sidebarWidget" native="true">
@@ -293,14 +352,14 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <widget class="QWidget" name="statusWidget" native="true">
     <property name="geometry">
      <rect>
-      <x>-140</x>
+      <x>-130</x>
       <y>0</y>
       <width>1481</width>
       <height>81</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">background-color: rgb(192, 191, 188);</string>
+     <string notr="true">background-color: rgb(255, 255, 255);</string>
     </property>
     <widget class="QLabel" name="labelTime">
      <property name="geometry">
@@ -326,6 +385,25 @@ li.checked::marker { content: &quot;\2612&quot;; }
      </property>
      <property name="text">
       <string>TextLabel</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="alarmIcon">
+     <property name="geometry">
+      <rect>
+       <x>1090</x>
+       <y>10</y>
+       <width>41</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap>icons/greyicon.png</pixmap>
+     </property>
+     <property name="scaledContents">
+      <bool>true</bool>
      </property>
     </widget>
    </widget>

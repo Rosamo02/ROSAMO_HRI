@@ -6,6 +6,7 @@ import rclpy
 from rclpy.executors import SingleThreadedExecutor
 from alarm_manager import AlarmManager
 from alarm import AlarmSeverity
+from teleop_controller import TeleopController
 
 
 from PySide6.QtWidgets import QMainWindow,QTableWidgetItem
@@ -66,13 +67,9 @@ class MainWindow(QMainWindow):
         self.ui.videoLabel.setText("Waiting for RealSense...")
         self.ui.videoLabel.setScaledContents(True)
 
-        # Keyboard teleop state
-        self.keys_down = {"space": False, "w": False, "a": False, "s": False, "d": False}
-        self.linear = 0.0
-        self.angular = 0.0
-
         # ROS nodes
         self.teleop_node = TeleopNode()
+        self.teleop_controller = TeleopController(self.teleop_node)
         self.battery_node = BatteryNode(self.ui)
         self.image_node = ImageViewer("/apriltag/overlay/compressed")
         self.image_node.new_frame.connect(self.update_image)
@@ -191,33 +188,16 @@ class MainWindow(QMainWindow):
         current_time = QTime.currentTime().toString("HH:mm:ss")
         self.ui.labelTime.setText(f"Time: {current_time}")
 
-
-    # Keyboard Teleop
-    def update_cmd(self):
-        self.teleop_node.send_cmd(self.linear, self.angular)
-
-    def update_motion(self):
-        if not self.keys_down["space"]:
-            self.linear = 0.0
-            self.angular = 0.0
-        else:
-            self.linear = 1.0 if self.keys_down["w"] else -1.0 if self.keys_down["s"] else 0.0
-            self.angular = 1.0 if self.keys_down["a"] else -1.0 if self.keys_down["d"] else 0.0
-
-        print(f"[KEYBOARD] linear={self.linear}, angular={self.angular}")
-        self.update_cmd()
-
     def keyPressEvent(self, event: QKeyEvent):
         if self.current_mode != "keyboard":
             return
 
         key = event.text().lower()
         if event.key() == Qt.Key_Space:
-            self.keys_down["space"] = True
-        if key in self.keys_down:
-            self.keys_down[key] = True
+            key = " "
 
-        self.update_motion()
+        self.teleop_controller.handle_key_press(key)
+
 
     def keyReleaseEvent(self, event: QKeyEvent):
         if self.current_mode != "keyboard":
@@ -225,11 +205,10 @@ class MainWindow(QMainWindow):
 
         key = event.text().lower()
         if event.key() == Qt.Key_Space:
-            self.keys_down["space"] = False
-        if key in self.keys_down:
-            self.keys_down[key] = False
+            key = " "
 
-        self.update_motion()
+        self.teleop_controller.handle_key_release(key)
+
 
 
     # Controller Mode Switching
@@ -243,10 +222,11 @@ class MainWindow(QMainWindow):
             self.ui.toggleInputButton.setText("Use Controller")
             print("Switched to KEYBOARD mode")
 
-        self.linear = 0.0
-        self.angular = 0.0
-        self.keys_down = {k: False for k in self.keys_down}
-        self.update_cmd()
+        self.teleop_controller.keys_down = {k: False for k in self.teleop_controller.keys_down}
+        self.teleop_controller.linear = 0.0
+        self.teleop_controller.angular = 0.0
+        self.teleop_controller.send_cmd()
+
 
     # Image Update
     def update_image(self, qimg):

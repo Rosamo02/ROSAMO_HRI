@@ -2,4 +2,4 @@
 name = "PySide Widgets Project"
 
 [tool.pyside6-project]
-files = ["alarm.py", "alarm_manager.py", "battery_node.py", "form.ui", "gst_video_widget.py", "image_viewer.py", "login_manager.py", "main.py", "mainwindow.py", "map_view.py", "sdl_controller.py", "teleop_node.py", "teleop_qt.py"]
+files = ["alarm.py", "alarm_manager.py", "battery_node.py", "form.ui", "gst_video_widget.py", "image_viewer.py", "login_manager.py", "main.py", "mainwindow.py", "map_view.py", "sdl_controller.py", "teleop_controller.py", "teleop_node.py"]

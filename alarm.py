@@ -14,3 +14,4 @@ class Alarm:
     message: str
     severity: AlarmSeverity
     timestamp: datetime
+    acknowledged: bool = False

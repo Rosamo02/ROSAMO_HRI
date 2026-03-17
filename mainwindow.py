@@ -7,11 +7,13 @@ from rclpy.executors import SingleThreadedExecutor
 from alarm_manager import AlarmManager
 from alarm import AlarmSeverity
 from teleop_controller import TeleopController
+from hmi_order_sender import HMICommandClient
+from slammap_node import MapNode
 
 
 from PySide6.QtWidgets import QMainWindow,QTableWidgetItem
 
-from PySide6.QtGui import QKeyEvent, QPixmap
+from PySide6.QtGui import QKeyEvent, QPixmap, QTransform
 from PySide6.QtCore import Qt, QTimer, QTime
 
 from ui_form import Ui_MainWindow
@@ -73,12 +75,17 @@ class MainWindow(QMainWindow):
         self.battery_node = BatteryNode(self.ui)
         self.image_node = ImageViewer("/apriltag/overlay/compressed")
         self.image_node.new_frame.connect(self.update_image)
+        self.command_client = HMICommandClient(self.teleop_node)
+        self.map_node = MapNode()
+        self.map_node.bridge.map_updated.connect(self.update_map_view)
 
         # ROS executor
         self.executor = SingleThreadedExecutor()
         self.executor.add_node(self.teleop_node)
         self.executor.add_node(self.battery_node)
         self.executor.add_node(self.image_node)
+        self.executor.add_node(self.map_node)
+
 
         self.ros_thread = threading.Thread(target=self.executor.spin, daemon=True)
         self.ros_thread.start()
@@ -93,9 +100,19 @@ class MainWindow(QMainWindow):
         self.video = GstVideoWidget(pipeline)
         self.ui.videoLayout.addWidget(self.video)
 
+        #Connect Video Toggler(Using debug msg right now)
+        self.ui.screenToggler.clicked.connect(self.command_client.start_stop_debug_msg)
+
         # Input mode switching
         self.current_mode = "keyboard"
         self.ui.toggleInputButton.clicked.connect(self.on_toggleInputButton_clicked)
+
+        #StatusBar COntrolMode
+        self.ui.labelControlMode.setText(f"ControlMode: {self.current_mode}")
+
+
+        #SpeedSlider
+        self.ui.powerSlider.valueChanged.connect(self.update_slider_scale)
 
         # SDL controller
         self.sdl = SDLController(self)
@@ -209,10 +226,19 @@ class MainWindow(QMainWindow):
 
         self.teleop_controller.handle_key_release(key)
 
-
+    def update_slider_scale(self, value):
+        scale = value / 100.0
+        self.teleop_controller.speed_scale = scale
+        print(f"The scale is set to {scale}")
 
     # Controller Mode Switching
     def on_toggleInputButton_clicked(self):
+
+        self.alarm_manager.raise_alarm(
+            "TEST_2",
+            "This is a test alarm_2",
+            AlarmSeverity.WARNING
+        )
         if self.current_mode == "keyboard":
             self.current_mode = "controller"
             self.ui.toggleInputButton.setText("Use Keyboard")
@@ -221,6 +247,9 @@ class MainWindow(QMainWindow):
             self.current_mode = "keyboard"
             self.ui.toggleInputButton.setText("Use Controller")
             print("Switched to KEYBOARD mode")
+
+        #Change Status Bar
+        self.ui.labelControlMode.setText(f"ControlMode: {self.current_mode}")
 
         self.teleop_controller.keys_down = {k: False for k in self.teleop_controller.keys_down}
         self.teleop_controller.linear = 0.0
@@ -262,7 +291,7 @@ class MainWindow(QMainWindow):
 
     def toggle_alarm_icon(self):
         self.blink_state = not self.blink_state
-        icon = "icons/redicon.png" if self.blink_state else "icons/greyicon.png"
+        icon = "icons/red_icon.png" if self.blink_state else "icons/greyicon.png"
 
         pix = QPixmap(icon).scaled(
             32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation
@@ -271,6 +300,24 @@ class MainWindow(QMainWindow):
 
     def acknowledge_alarms(self):
         self.alarm_manager.acknowledge()
+
+    def update_map_view(self, qimg):
+
+        # Rotate and flip to match ROS orientation
+        rotated = qimg.transformed(QTransform().rotate(-90))
+        final_img = rotated.mirrored(False, True)
+
+        # Scale while keeping aspect ratio
+        pix = QPixmap.fromImage(final_img)
+        pix = pix.scaled(
+            self.ui.slamMapView.size(),
+            Qt.KeepAspectRatio,
+            Qt.SmoothTransformation
+        )
+        self.ui.slamMapView.setPixmap(pix)
+
+
+
 
     # Close Event
     def closeEvent(self, event):

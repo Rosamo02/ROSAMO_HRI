@@ -39,7 +39,7 @@ class ImageViewer(Node, QObject):
             np_arr = np.frombuffer(msg.data, np.uint8)
             frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
 
-            # Optional: rotate 180°
+            # Optional: rotate 180° because the image comes in wrong(Maybe change if needed)
             frame = cv2.rotate(frame, cv2.ROTATE_180)
 
             # Ensure contiguous memory for Qt

@@ -17,8 +17,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QHeaderView, QLabel, QLineEdit,
     QMainWindow, QMenuBar, QPushButton, QSizePolicy,
-    QStackedWidget, QStatusBar, QTableWidget, QTableWidgetItem,
-    QTextEdit, QVBoxLayout, QWidget)
+    QSlider, QStackedWidget, QStatusBar, QTableWidget,
+    QTableWidgetItem, QTextEdit, QVBoxLayout, QWidget)
 
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
@@ -34,7 +34,7 @@ class Ui_MainWindow(object):
 "background-color: rgb(0, 0, 0);")
         self.stackedWidget = QStackedWidget(self.widget)
         self.stackedWidget.setObjectName(u"stackedWidget")
-        self.stackedWidget.setGeometry(QRect(90, 80, 1291, 781))
+        self.stackedWidget.setGeometry(QRect(100, 80, 1291, 781))
         self.Main_pg = QWidget()
         self.Main_pg.setObjectName(u"Main_pg")
         self.Main_pg.setStyleSheet(u"background-color: rgb(255, 255, 255);\n"
@@ -44,7 +44,7 @@ class Ui_MainWindow(object):
         self.videoLabel.setGeometry(QRect(460, 10, 441, 281))
         self.toggleInputButton = QPushButton(self.Main_pg)
         self.toggleInputButton.setObjectName(u"toggleInputButton")
-        self.toggleInputButton.setGeometry(QRect(10, 510, 201, 121))
+        self.toggleInputButton.setGeometry(QRect(30, 500, 191, 21))
         self.toggleInputButton.setStyleSheet(u"color: rgb(255, 255, 255);\n"
 "background-color: rgb(245, 194, 17);")
         self.verticalLayoutWidget = QWidget(self.Main_pg)
@@ -53,6 +53,17 @@ class Ui_MainWindow(object):
         self.videoLayout = QVBoxLayout(self.verticalLayoutWidget)
         self.videoLayout.setObjectName(u"videoLayout")
         self.videoLayout.setContentsMargins(0, 0, 0, 0)
+        self.powerSlider = QSlider(self.Main_pg)
+        self.powerSlider.setObjectName(u"powerSlider")
+        self.powerSlider.setGeometry(QRect(30, 480, 191, 16))
+        self.powerSlider.setMaximum(100)
+        self.powerSlider.setOrientation(Qt.Orientation.Horizontal)
+        self.screenToggler = QPushButton(self.Main_pg)
+        self.screenToggler.setObjectName(u"screenToggler")
+        self.screenToggler.setGeometry(QRect(10, 290, 21, 21))
+        self.slamMapView = QLabel(self.Main_pg)
+        self.slamMapView.setObjectName(u"slamMapView")
+        self.slamMapView.setGeometry(QRect(420, 370, 241, 241))
         self.stackedWidget.addWidget(self.Main_pg)
         self.Main_2_pg = QWidget()
         self.Main_2_pg.setObjectName(u"Main_2_pg")
@@ -175,15 +186,18 @@ class Ui_MainWindow(object):
         self.statusWidget.setStyleSheet(u"background-color: rgb(255, 255, 255);")
         self.labelTime = QLabel(self.statusWidget)
         self.labelTime.setObjectName(u"labelTime")
-        self.labelTime.setGeometry(QRect(150, 0, 421, 18))
+        self.labelTime.setGeometry(QRect(140, 10, 421, 18))
         self.labelBattery = QLabel(self.statusWidget)
         self.labelBattery.setObjectName(u"labelBattery")
-        self.labelBattery.setGeometry(QRect(150, 50, 421, 18))
+        self.labelBattery.setGeometry(QRect(140, 30, 421, 18))
         self.alarmIcon = QLabel(self.statusWidget)
         self.alarmIcon.setObjectName(u"alarmIcon")
         self.alarmIcon.setGeometry(QRect(1090, 10, 41, 31))
         self.alarmIcon.setPixmap(QPixmap(u"icons/greyicon.png"))
         self.alarmIcon.setScaledContents(True)
+        self.labelControlMode = QLabel(self.statusWidget)
+        self.labelControlMode.setObjectName(u"labelControlMode")
+        self.labelControlMode.setGeometry(QRect(140, 50, 421, 18))
         MainWindow.setCentralWidget(self.widget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
@@ -202,6 +216,8 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
         self.videoLabel.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.toggleInputButton.setText(QCoreApplication.translate("MainWindow", u"Toggle Keyboard/Controller", None))
+        self.screenToggler.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
+        self.slamMapView.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.textEdit.setHtml(QCoreApplication.translate("MainWindow", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
@@ -224,5 +240,6 @@ class Ui_MainWindow(object):
         self.labelTime.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.labelBattery.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.alarmIcon.setText("")
+        self.labelControlMode.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
     # retranslateUi
 

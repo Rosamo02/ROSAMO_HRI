@@ -7,6 +7,9 @@ class TeleopController(QObject):
         super().__init__()
         self.node = teleop_node
 
+        #Initial Speed
+        self.speed_scale = 0.0
+
         # Track key states
         self.keys_down = {"space": False, "w": False, "a": False, "s": False, "d": False}
         self.linear = 0.0
@@ -33,8 +36,11 @@ class TeleopController(QObject):
             self.linear = 0.0
             self.angular = 0.0
         else:
-            self.linear = 1.0 if self.keys_down["w"] else -1.0 if self.keys_down["s"] else 0.0
-            self.angular = 1.0 if self.keys_down["a"] else -1.0 if self.keys_down["d"] else 0.0
+            self.base_linear = 1.0 if self.keys_down["w"] else -1.0 if self.keys_down["s"] else 0.0
+            self.base_angular = 1.0 if self.keys_down["a"] else -1.0 if self.keys_down["d"] else 0.0
+
+            self.angular = self.base_angular * self.speed_scale
+            self.linear = self.base_linear * self.speed_scale
 
         self.send_cmd()
 

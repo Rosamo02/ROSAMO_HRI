@@ -100,14 +100,20 @@ class MainWindow(QMainWindow):
         self.video = GstVideoWidget(pipeline)
         self.ui.videoLayout.addWidget(self.video)
 
-        #Connect Video Toggler(Using debug msg right now)
+        #Connect Arming and Offboard
+
+        self.ui.armButton.clicked.connect(self.arming_command)
+        self.ui.offboardButton.clicked.connect(self.offboard_command)
+
+        #Connect Togglers (Using debug msg right now)
         self.ui.screenToggler.clicked.connect(self.command_client.start_stop_debug_msg)
+        self.ui.mapToggler.clicked.connect(self.command_client.start_stop_Lidar_Map_msg)
 
         # Input mode switching
         self.current_mode = "keyboard"
         self.ui.toggleInputButton.clicked.connect(self.on_toggleInputButton_clicked)
 
-        #StatusBar COntrolMode
+        #StatusBar ControlMode
         self.ui.labelControlMode.setText(f"ControlMode: {self.current_mode}")
 
 
@@ -316,7 +322,29 @@ class MainWindow(QMainWindow):
         )
         self.ui.slamMapView.setPixmap(pix)
 
+    def offboard_command(self):
+        print("Offboard command via terminal...")
+        # This is exactly what you type in the terminal
+        cmd = 'ros2 service call /px4/offboard std_srvs/srv/SetBool "{data: true}"'
 
+        exit_code = os.system(cmd)
+
+        if exit_code == 0:
+            print("Command for offboard executed successfully in terminal.")
+        else:
+            print(f"Command for offboard failed with exit code: {exit_code}")
+
+    def arming_command(self):
+        print("Arming command via terminal...")
+        # This is exactly what you type in the terminal
+        cmd = 'ros2 service call /px4/arm std_srvs/srv/SetBool "{data: true}"'
+
+        exit_code = os.system(cmd)
+
+        if exit_code == 0:
+                print("Command for arming executed successfully in terminal.")
+        else:
+                print(f"Command for arming failed with exit code: {exit_code}")
 
 
     # Close Event

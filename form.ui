@@ -255,7 +255,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
        </rect>
       </property>
       <property name="text">
-       <string>PushButton</string>
+       <string>OffBoard</string>
       </property>
      </widget>
      <widget class="QPushButton" name="armButton">
@@ -268,7 +268,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
        </rect>
       </property>
       <property name="text">
-       <string>PushButton</string>
+       <string>Arming</string>
       </property>
      </widget>
      <widget class="QLabel" name="offboardLabel">

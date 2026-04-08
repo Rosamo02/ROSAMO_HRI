@@ -18,7 +18,7 @@ from PySide6.QtCore import Qt, QTimer, QTime
 
 from ui_form import Ui_MainWindow
 from teleop_node import TeleopNode
-from battery_node import BatteryNode
+from data_reader_node import BatteryNode
 from image_viewer import ImageViewer
 from sdl_controller import SDLController
 from gst_video_widget import GstVideoWidget
@@ -71,8 +71,8 @@ class MainWindow(QMainWindow):
 
         # ROS nodes
         self.teleop_node = TeleopNode()
+        self.battery_node = BatteryNode()
         self.teleop_controller = TeleopController(self.teleop_node)
-        self.battery_node = BatteryNode(self.ui)
         self.image_node = ImageViewer("/apriltag/overlay/compressed")
         self.image_node.new_frame.connect(self.update_image)
         self.command_client = HMICommandClient(self.teleop_node)
@@ -161,6 +161,11 @@ class MainWindow(QMainWindow):
             AlarmSeverity.WARNING
         )
 
+        # Connect the signal to a local handler
+        self.battery_node.signals.battery_updated.connect(self.update_battery_ui)
+        self.battery_node.signals.arming_updated.connect(self.update_arming_ui)
+        self.battery_node.signals.offboard_updated.connect(self.update_offboard_ui)
+
         print("MainWindow initialized successfully.")
 
     # UI Navigation
@@ -205,6 +210,26 @@ class MainWindow(QMainWindow):
         else:
             print("Failed login")
 
+    def update_battery_ui(self, percent):
+        self.ui.labelBattery.setText(f"Battery: {percent}%")
+        # Color logic
+        if percent > 50:
+            style = "color: green;"
+        elif percent > 20:
+            style = "color: yellow;"
+        else:
+            style = "color: red;"
+        self.ui.labelBattery.setStyleSheet(style)
+
+    def update_arming_ui(self, status_text):
+        self.ui.armLabel.setText(status_text)
+        color = "red" if status_text == "Armed" else "gray"
+        self.ui.armLabel.setStyleSheet(f"color: {color}; font-weight: bold;")
+
+    def update_offboard_ui(self, status_text):
+        self.ui.offboardLabel.setText(status_text)
+        color = "#2d89ef" if "On" in status_text else "gray"
+        self.ui.offboardLabel.setStyleSheet(f"color: {color};")
 
     # Status Bar
     def update_status_bar(self):

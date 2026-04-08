@@ -249,8 +249,8 @@ class Ui_MainWindow(object):
                         "></p>\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:22pt;\"><br /></p></body></html>", None))
         self.Login_Button.setText(QCoreApplication.translate("MainWindow", u"Login", None))
-        self.offboardButton.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
-        self.armButton.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
+        self.offboardButton.setText(QCoreApplication.translate("MainWindow", u"OffBoard", None))
+        self.armButton.setText(QCoreApplication.translate("MainWindow", u"Arming", None))
         self.offboardLabel.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.armLabel.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.ackButton.setText(QCoreApplication.translate("MainWindow", u"Acknowledge Alarm", None))

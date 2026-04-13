@@ -163,6 +163,7 @@ class MainWindow(QMainWindow):
 
         # Connect the signal to a local handler
         self.battery_node.signals.battery_updated.connect(self.update_battery_ui)
+        self.battery_node.signals.time_left_updated.connect(self.update_time_left_ui)
         self.battery_node.signals.arming_updated.connect(self.update_arming_ui)
         self.battery_node.signals.offboard_updated.connect(self.update_offboard_ui)
 
@@ -220,6 +221,9 @@ class MainWindow(QMainWindow):
         else:
             style = "color: red;"
         self.ui.labelBattery.setStyleSheet(style)
+
+    def update_time_left_ui(self, time_left):
+        self.ui.labelTimeRemaingBattery.setText(f"Time left: {time_left}")
 
     def update_arming_ui(self, status_text):
         self.ui.armLabel.setText(status_text)

@@ -532,6 +532,19 @@ li.checked::marker { content: &quot;\2612&quot;; }
       <string>TextLabel</string>
      </property>
     </widget>
+    <widget class="QLabel" name="labelTimeRemaingBattery">
+     <property name="geometry">
+      <rect>
+       <x>230</x>
+       <y>30</y>
+       <width>421</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

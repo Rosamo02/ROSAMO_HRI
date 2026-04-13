@@ -215,6 +215,9 @@ class Ui_MainWindow(object):
         self.labelControlMode = QLabel(self.statusWidget)
         self.labelControlMode.setObjectName(u"labelControlMode")
         self.labelControlMode.setGeometry(QRect(140, 50, 421, 18))
+        self.labelTimeRemaingBattery = QLabel(self.statusWidget)
+        self.labelTimeRemaingBattery.setObjectName(u"labelTimeRemaingBattery")
+        self.labelTimeRemaingBattery.setGeometry(QRect(230, 30, 421, 18))
         MainWindow.setCentralWidget(self.widget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
@@ -263,5 +266,6 @@ class Ui_MainWindow(object):
         self.labelBattery.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.alarmIcon.setText("")
         self.labelControlMode.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
+        self.labelTimeRemaingBattery.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
     # retranslateUi
 

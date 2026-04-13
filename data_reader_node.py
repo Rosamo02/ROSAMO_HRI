@@ -23,13 +23,10 @@ class BatteryNode(Node):
             depth=1
         )
 
-        self.last_percent_for_estimate = None
-        self.last_estimate_time = None
-
         self.current_percent = None
         self.current_current = None
+        self.current_charge = None
 
-        # Battery subscription
         self.battery_sub = self.create_subscription(
             BatteryState,
             '/litime_bms/state',
@@ -37,7 +34,6 @@ class BatteryNode(Node):
             qos
         )
 
-        # Vehicle status subscription
         self.status_sub = self.create_subscription(
             VehicleStatus,
             '/fmu/out/vehicle_status_v1',
@@ -45,51 +41,41 @@ class BatteryNode(Node):
             qos
         )
 
-        # Recompute time remaining every 10 seconds
         self.time_left_timer = self.create_timer(2.0, self.update_time_left)
 
     def battery_callback(self, msg: BatteryState):
-        percent = max(0.0, min(100.0, msg.percentage * 100.0))
-        self.current_percent = percent
-        self.current_current = msg.current
+        self.current_percent = max(0.0, min(100.0, msg.percentage * 100.0))
+        self.current_current = float(msg.current)
+        self.current_charge = float(msg.charge)
 
-        self.signals.battery_updated.emit(int(percent))
+        self.signals.battery_updated.emit(int(self.current_percent))
 
     def update_time_left(self):
-        print("update_time_left called")
-        print(f"current_percent={self.current_percent}, current_current={self.current_current}")
-
-        if self.current_percent is None or self.current_current is None:
-            print("No battery data yet")
+        if (
+            self.current_percent is None
+            or self.current_current is None
+            or self.current_charge is None
+        ):
             self.signals.time_left_updated.emit("--")
             return
 
-        now = self.get_clock().now().nanoseconds / 1e9
-        percent = self.current_percent
-        current = self.current_current
-
         time_left_str = "--"
 
-        if current < 0.0:
-            if self.last_percent_for_estimate is not None and self.last_estimate_time is not None:
-                dp = self.last_percent_for_estimate - percent
-                dt = now - self.last_estimate_time
-                print(f"dp={dp}, dt={dt}")
+        # Negative current means discharging
+        if self.current_current < -0.01:
+            discharge_current = abs(self.current_current)
 
-                if dp > 0.0 and dt > 0.0:
-                    seconds_per_percent = dt / dp
-                    time_left_sec = percent * seconds_per_percent
+            # Your driver appears to report charge in mAh-like units
+            remaining_ah = self.current_charge / 1000.0
 
-                    hours = int(time_left_sec // 3600)
-                    minutes = int((time_left_sec % 3600) // 60)
-                    time_left_str = f"{hours}h {minutes}m"
-        else:
-            print("Battery not discharging")
+            if remaining_ah > 0.0 and discharge_current > 0.0:
+                hours_left = remaining_ah / discharge_current
 
-        self.last_percent_for_estimate = percent
-        self.last_estimate_time = now
+                total_seconds = int(hours_left * 3600)
+                hours = total_seconds // 3600
+                minutes = (total_seconds % 3600) // 60
+                time_left_str = f"{hours}h {minutes}m"
 
-        print(f"time_left_str={time_left_str}")
         self.signals.time_left_updated.emit(time_left_str)
 
     def status_callback(self, msg: VehicleStatus):

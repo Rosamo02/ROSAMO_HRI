@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1313</width>
-    <height>763</height>
+    <width>1920</width>
+    <height>1080</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,10 +21,10 @@ background-color: rgb(0, 0, 0);</string>
    <widget class="QStackedWidget" name="stackedWidget">
     <property name="geometry">
      <rect>
-      <x>100</x>
+      <x>60</x>
       <y>80</y>
-      <width>1291</width>
-      <height>781</height>
+      <width>2271</width>
+      <height>971</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -248,7 +248,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <widget class="QPushButton" name="offboardButton">
       <property name="geometry">
        <rect>
-        <x>10</x>
+        <x>40</x>
         <y>10</y>
         <width>94</width>
         <height>26</height>
@@ -261,7 +261,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <widget class="QPushButton" name="armButton">
       <property name="geometry">
        <rect>
-        <x>120</x>
+        <x>140</x>
         <y>10</y>
         <width>94</width>
         <height>26</height>
@@ -274,7 +274,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <widget class="QLabel" name="offboardLabel">
       <property name="geometry">
        <rect>
-        <x>20</x>
+        <x>40</x>
         <y>40</y>
         <width>71</width>
         <height>18</height>
@@ -287,7 +287,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <widget class="QLabel" name="armLabel">
       <property name="geometry">
        <rect>
-        <x>120</x>
+        <x>140</x>
         <y>40</y>
         <width>91</width>
         <height>18</height>
@@ -314,26 +314,26 @@ li.checked::marker { content: &quot;\2612&quot;; }
       <widget class="QTableWidget" name="tableWidget">
        <property name="geometry">
         <rect>
-         <x>5</x>
+         <x>15</x>
          <y>1</y>
-         <width>1231</width>
-         <height>661</height>
+         <width>1301</width>
+         <height>891</height>
         </rect>
        </property>
       </widget>
-      <widget class="QPushButton" name="ackButton">
-       <property name="geometry">
-        <rect>
-         <x>30</x>
-         <y>610</y>
-         <width>161</width>
-         <height>26</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Acknowledge Alarm</string>
-       </property>
-      </widget>
+     </widget>
+     <widget class="QPushButton" name="ackButton">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>920</y>
+        <width>161</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Acknowledge Alarm</string>
+      </property>
      </widget>
     </widget>
    </widget>
@@ -342,8 +342,8 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <rect>
       <x>0</x>
       <y>80</y>
-      <width>91</width>
-      <height>921</height>
+      <width>81</width>
+      <height>961</height>
      </rect>
     </property>
     <widget class="QPushButton" name="Home_Button">
@@ -467,7 +467,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <rect>
       <x>-130</x>
       <y>0</y>
-      <width>1481</width>
+      <width>2461</width>
       <height>81</height>
      </rect>
     </property>
@@ -535,7 +535,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <widget class="QLabel" name="labelTimeRemaingBattery">
      <property name="geometry">
       <rect>
-       <x>230</x>
+       <x>360</x>
        <y>30</y>
        <width>421</width>
        <height>18</height>
@@ -552,7 +552,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1313</width>
+     <width>1920</width>
      <height>23</height>
     </rect>
    </property>

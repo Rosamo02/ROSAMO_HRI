@@ -101,7 +101,6 @@ class MainWindow(QMainWindow):
         self.ui.videoLayout.addWidget(self.video)
 
         #Connect Arming and Offboard
-
         self.ui.armButton.clicked.connect(self.arming_command)
         self.ui.offboardButton.clicked.connect(self.offboard_command)
 
@@ -143,13 +142,11 @@ class MainWindow(QMainWindow):
         self.alarm_manager.alarmCleared.connect(self.remove_alarm_from_table)
 
         #BlinkerAlarm
-
         self.blink_timer = QTimer()
         self.blink_timer.timeout.connect(self.toggle_alarm_icon)
         self.blink_state = False
 
         #connect ack button
-
         self.ui.ackButton.clicked.connect(self.acknowledge_alarms)
 
         self.alarm_manager.unacknowledgedChanged.connect(self.handle_unacknowledged_change)
@@ -207,12 +204,13 @@ class MainWindow(QMainWindow):
 
         if self.login.validate(username, password):
             self.ui.sidebarWidget.setVisible(True)
+            self.navigate(self.ui.Home_pg, self.ui.Home_Button)
             print("Successful login")
         else:
             print("Failed login")
 
-    def update_battery_ui(self, percent):
-        self.ui.labelBattery.setText(f"Battery: {percent}%")
+    def update_battery_ui(self, percent, current):
+        self.ui.labelBattery.setText(f"Battery: {percent}% Current: {current:.2f}A")
         # Color logic
         if percent > 50:
             style = "color: green;"
@@ -351,13 +349,12 @@ class MainWindow(QMainWindow):
         )
         self.ui.slamMapView.setPixmap(pix)
 
+        #This 2 are responsible for sending the offboard and arming commands through the terminal.
+        #Maybe not ideal solution considering the screen "freezes" while its being processed
     def offboard_command(self):
         print("Offboard command via terminal...")
-        # This is exactly what you type in the terminal
         cmd = 'ros2 service call /px4/offboard std_srvs/srv/SetBool "{data: true}"'
-
         exit_code = os.system(cmd)
-
         if exit_code == 0:
             print("Command for offboard executed successfully in terminal.")
         else:
@@ -365,11 +362,8 @@ class MainWindow(QMainWindow):
 
     def arming_command(self):
         print("Arming command via terminal...")
-        # This is exactly what you type in the terminal
         cmd = 'ros2 service call /px4/arm std_srvs/srv/SetBool "{data: true}"'
-
         exit_code = os.system(cmd)
-
         if exit_code == 0:
                 print("Command for arming executed successfully in terminal.")
         else:

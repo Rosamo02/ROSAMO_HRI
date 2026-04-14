@@ -3,10 +3,15 @@ from px4_msgs.msg import VehicleStatus
 from sensor_msgs.msg import BatteryState
 from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy
 from PySide6.QtCore import QObject, Signal
-
+from rclpy.qos import (
+    QoSProfile,
+    QoSReliabilityPolicy,
+    QoSHistoryPolicy,
+    QoSDurabilityPolicy,
+)
 
 class BatterySignalBridge(QObject):
-    battery_updated = Signal(int)
+    battery_updated = Signal(int, float)
     arming_updated = Signal(str)
     offboard_updated = Signal(str)
     time_left_updated = Signal(str)
@@ -21,6 +26,12 @@ class BatteryNode(Node):
             reliability=QoSReliabilityPolicy.BEST_EFFORT,
             history=QoSHistoryPolicy.KEEP_LAST,
             depth=1
+        )
+        px4_qos = QoSProfile(
+            reliability=QoSReliabilityPolicy.BEST_EFFORT,
+            durability=QoSDurabilityPolicy.TRANSIENT_LOCAL,
+            history=QoSHistoryPolicy.KEEP_LAST,
+            depth=10,
         )
 
         self.current_percent = None
@@ -38,7 +49,7 @@ class BatteryNode(Node):
             VehicleStatus,
             '/fmu/out/vehicle_status_v1',
             self.status_callback,
-            qos
+            px4_qos
         )
 
         self.time_left_timer = self.create_timer(2.0, self.update_time_left)
@@ -48,7 +59,7 @@ class BatteryNode(Node):
         self.current_current = float(msg.current)
         self.current_charge = float(msg.charge)
 
-        self.signals.battery_updated.emit(int(self.current_percent))
+        self.signals.battery_updated.emit(int(self.current_percent), self.current_current)
 
     def update_time_left(self):
         if (

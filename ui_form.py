@@ -18,7 +18,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QHeaderView, QLabel, QLineEdit,
     QMainWindow, QMenuBar, QPushButton, QSizePolicy,
     QSlider, QStackedWidget, QStatusBar, QTableWidget,
-    QTableWidgetItem, QTextEdit, QVBoxLayout, QWidget)
+    QTableWidgetItem, QVBoxLayout, QWidget)
 
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
@@ -34,7 +34,7 @@ class Ui_MainWindow(object):
 "background-color: rgb(0, 0, 0);")
         self.stackedWidget = QStackedWidget(self.widget)
         self.stackedWidget.setObjectName(u"stackedWidget")
-        self.stackedWidget.setGeometry(QRect(60, 80, 2271, 971))
+        self.stackedWidget.setGeometry(QRect(0, 80, 2331, 971))
         self.stackedWidget.setStyleSheet(u"")
         self.Main_pg = QWidget()
         self.Main_pg.setObjectName(u"Main_pg")
@@ -61,7 +61,7 @@ class Ui_MainWindow(object):
         self.powerSlider.setOrientation(Qt.Orientation.Horizontal)
         self.screenToggler = QPushButton(self.Main_pg)
         self.screenToggler.setObjectName(u"screenToggler")
-        self.screenToggler.setGeometry(QRect(10, 290, 21, 21))
+        self.screenToggler.setGeometry(QRect(30, 290, 21, 21))
         self.slamMapView = QLabel(self.Main_pg)
         self.slamMapView.setObjectName(u"slamMapView")
         self.slamMapView.setGeometry(QRect(420, 370, 241, 241))
@@ -98,17 +98,19 @@ class Ui_MainWindow(object):
         self.Login_pg.setStyleSheet(u"background-color: rgb(255, 255, 255);")
         self.usernameField = QLineEdit(self.Login_pg)
         self.usernameField.setObjectName(u"usernameField")
-        self.usernameField.setGeometry(QRect(232, 275, 241, 31))
+        self.usernameField.setGeometry(QRect(290, 280, 241, 31))
         self.passwordField = QLineEdit(self.Login_pg)
         self.passwordField.setObjectName(u"passwordField")
-        self.passwordField.setGeometry(QRect(230, 320, 241, 31))
-        self.textEdit = QTextEdit(self.Login_pg)
-        self.textEdit.setObjectName(u"textEdit")
-        self.textEdit.setGeometry(QRect(20, 270, 201, 91))
-        self.textEdit.setStyleSheet(u"border-color: rgb(255, 255, 255);")
+        self.passwordField.setGeometry(QRect(290, 310, 241, 31))
         self.Login_Button = QPushButton(self.Login_pg)
         self.Login_Button.setObjectName(u"Login_Button")
         self.Login_Button.setGeometry(QRect(250, 380, 94, 26))
+        self.loginLabel = QLabel(self.Login_pg)
+        self.loginLabel.setObjectName(u"loginLabel")
+        self.loginLabel.setGeometry(QRect(210, 280, 71, 21))
+        self.loginLabel_2 = QLabel(self.Login_pg)
+        self.loginLabel_2.setObjectName(u"loginLabel_2")
+        self.loginLabel_2.setGeometry(QRect(210, 310, 71, 21))
         self.stackedWidget.addWidget(self.Login_pg)
         self.Home_pg = QWidget()
         self.Home_pg.setObjectName(u"Home_pg")
@@ -209,7 +211,7 @@ class Ui_MainWindow(object):
         self.labelBattery.setGeometry(QRect(140, 30, 421, 18))
         self.alarmIcon = QLabel(self.statusWidget)
         self.alarmIcon.setObjectName(u"alarmIcon")
-        self.alarmIcon.setGeometry(QRect(1090, 10, 41, 31))
+        self.alarmIcon.setGeometry(QRect(2000, 10, 41, 31))
         self.alarmIcon.setPixmap(QPixmap(u"icons/greyicon.png"))
         self.alarmIcon.setScaledContents(True)
         self.labelControlMode = QLabel(self.statusWidget)
@@ -239,19 +241,9 @@ class Ui_MainWindow(object):
         self.screenToggler.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
         self.slamMapView.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.mapToggler.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
-        self.textEdit.setHtml(QCoreApplication.translate("MainWindow", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"hr { height: 1px; border-width: 0; }\n"
-"li.unchecked::marker { content: \"\\2610\"; }\n"
-"li.checked::marker { content: \"\\2612\"; }\n"
-"</style></head><body style=\" font-family:'Ubuntu Sans'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:22pt;\">User:</span></p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:22pt;\">Password:</span></p>\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:22pt;\"><br /"
-                        "></p>\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:22pt;\"><br /></p></body></html>", None))
         self.Login_Button.setText(QCoreApplication.translate("MainWindow", u"Login", None))
+        self.loginLabel.setText(QCoreApplication.translate("MainWindow", u"User:", None))
+        self.loginLabel_2.setText(QCoreApplication.translate("MainWindow", u"Password:", None))
         self.offboardButton.setText(QCoreApplication.translate("MainWindow", u"OffBoard", None))
         self.armButton.setText(QCoreApplication.translate("MainWindow", u"Arming", None))
         self.offboardLabel.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))

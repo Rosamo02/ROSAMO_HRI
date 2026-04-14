@@ -10,7 +10,6 @@ from teleop_controller import TeleopController
 from hmi_order_sender import HMICommandClient
 from slammap_node import MapNode
 
-
 from PySide6.QtWidgets import QMainWindow,QTableWidgetItem
 
 from PySide6.QtGui import QKeyEvent, QPixmap, QTransform
@@ -24,7 +23,6 @@ from sdl_controller import SDLController
 from gst_video_widget import GstVideoWidget
 from login_manager import LoginManager
 from map_view import setup_map
-
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -125,14 +123,12 @@ class MainWindow(QMainWindow):
         # Map setup
         setup_map(self.ui.mapView)
 
-
         #Alarm Setup
         self.ui.tableWidget.setColumnCount(4)
         self.ui.tableWidget.setHorizontalHeaderLabels(
             ["Time", "Severity", "Code", "Message"]
         )
         self.ui.tableWidget.horizontalHeader().setStretchLastSection(True)
-
 
         #Alarm manager
         self.alarm_manager = AlarmManager()
@@ -153,8 +149,8 @@ class MainWindow(QMainWindow):
 
         #Debugging
         self.alarm_manager.raise_alarm(
-            "TEST_1",
-            "This is a test alarm",
+            "Initial Alarm",
+            "This is the initial alarm that pops off when the HMI is started",
             AlarmSeverity.WARNING
         )
 
@@ -204,7 +200,7 @@ class MainWindow(QMainWindow):
 
         if self.login.validate(username, password):
             self.ui.sidebarWidget.setVisible(True)
-            self.navigate(self.ui.Home_pg, self.ui.Home_Button)
+            self.navigate(self.ui.Home_pg, self.ui.Home_Button)#Changes from the login screen to the Home screen upon sucessfull login
             print("Successful login")
         else:
             print("Failed login")

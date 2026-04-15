@@ -38,7 +38,7 @@ background-color: rgb(255, 163, 72);</string>
      <widget class="QLabel" name="videoLabel">
       <property name="geometry">
        <rect>
-        <x>460</x>
+        <x>960</x>
         <y>10</y>
         <width>441</width>
         <height>281</height>
@@ -51,8 +51,8 @@ background-color: rgb(255, 163, 72);</string>
      <widget class="QPushButton" name="toggleInputButton">
       <property name="geometry">
        <rect>
-        <x>30</x>
-        <y>500</y>
+        <x>90</x>
+        <y>590</y>
         <width>191</width>
         <height>21</height>
        </rect>
@@ -68,10 +68,10 @@ background-color: rgb(245, 194, 17);</string>
      <widget class="QWidget" name="verticalLayoutWidget">
       <property name="geometry">
        <rect>
-        <x>10</x>
+        <x>100</x>
         <y>10</y>
-        <width>431</width>
-        <height>281</height>
+        <width>841</width>
+        <height>541</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="videoLayout"/>
@@ -79,8 +79,8 @@ background-color: rgb(245, 194, 17);</string>
      <widget class="QSlider" name="powerSlider">
       <property name="geometry">
        <rect>
-        <x>30</x>
-        <y>480</y>
+        <x>90</x>
+        <y>560</y>
         <width>191</width>
         <height>16</height>
        </rect>
@@ -95,9 +95,9 @@ background-color: rgb(245, 194, 17);</string>
      <widget class="QPushButton" name="screenToggler">
       <property name="geometry">
        <rect>
-        <x>30</x>
-        <y>290</y>
-        <width>21</width>
+        <x>330</x>
+        <y>590</y>
+        <width>81</width>
         <height>21</height>
        </rect>
       </property>
@@ -108,8 +108,8 @@ background-color: rgb(245, 194, 17);</string>
      <widget class="QLabel" name="slamMapView">
       <property name="geometry">
        <rect>
-        <x>420</x>
-        <y>370</y>
+        <x>1000</x>
+        <y>300</y>
         <width>241</width>
         <height>241</height>
        </rect>
@@ -121,8 +121,8 @@ background-color: rgb(245, 194, 17);</string>
      <widget class="QPushButton" name="mapToggler">
       <property name="geometry">
        <rect>
-        <x>280</x>
-        <y>369</y>
+        <x>1010</x>
+        <y>540</y>
         <width>71</width>
         <height>21</height>
        </rect>
@@ -248,7 +248,7 @@ background-color: rgb(245, 194, 17);</string>
      <widget class="QPushButton" name="offboardButton">
       <property name="geometry">
        <rect>
-        <x>40</x>
+        <x>230</x>
         <y>10</y>
         <width>94</width>
         <height>26</height>
@@ -261,7 +261,7 @@ background-color: rgb(245, 194, 17);</string>
      <widget class="QPushButton" name="armButton">
       <property name="geometry">
        <rect>
-        <x>140</x>
+        <x>330</x>
         <y>10</y>
         <width>94</width>
         <height>26</height>
@@ -274,7 +274,7 @@ background-color: rgb(245, 194, 17);</string>
      <widget class="QLabel" name="offboardLabel">
       <property name="geometry">
        <rect>
-        <x>40</x>
+        <x>240</x>
         <y>40</y>
         <width>71</width>
         <height>18</height>
@@ -287,9 +287,35 @@ background-color: rgb(245, 194, 17);</string>
      <widget class="QLabel" name="armLabel">
       <property name="geometry">
        <rect>
-        <x>140</x>
+        <x>340</x>
         <y>40</y>
         <width>91</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="routerToggler">
+      <property name="geometry">
+       <rect>
+        <x>90</x>
+        <y>10</y>
+        <width>121</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Connect2Robot</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="routerLabel">
+      <property name="geometry">
+       <rect>
+        <x>100</x>
+        <y>40</y>
+        <width>71</width>
         <height>18</height>
        </rect>
       </property>
@@ -305,9 +331,9 @@ background-color: rgb(245, 194, 17);</string>
      <widget class="QWidget" name="AlarmPage" native="true">
       <property name="geometry">
        <rect>
-        <x>-1</x>
-        <y>-1</y>
-        <width>1261</width>
+        <x>70</x>
+        <y>0</y>
+        <width>1231</width>
         <height>671</height>
        </rect>
       </property>
@@ -325,8 +351,8 @@ background-color: rgb(245, 194, 17);</string>
      <widget class="QPushButton" name="ackButton">
       <property name="geometry">
        <rect>
-        <x>30</x>
-        <y>920</y>
+        <x>110</x>
+        <y>730</y>
         <width>161</width>
         <height>26</height>
        </rect>
@@ -472,7 +498,7 @@ background-color: rgb(245, 194, 17);</string>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">background-color: rgb(255, 255, 255);</string>
+     <string notr="true">background-color: rgb(1, 1, 1);</string>
     </property>
     <widget class="QLabel" name="labelTime">
      <property name="geometry">
@@ -503,8 +529,8 @@ background-color: rgb(245, 194, 17);</string>
     <widget class="QLabel" name="alarmIcon">
      <property name="geometry">
       <rect>
-       <x>2000</x>
-       <y>10</y>
+       <x>860</x>
+       <y>20</y>
        <width>41</width>
        <height>31</height>
       </rect>

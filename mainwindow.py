@@ -10,7 +10,7 @@ from teleop_controller import TeleopController
 from hmi_order_sender import HMICommandClient
 from slammap_node import MapNode
 
-from PySide6.QtWidgets import QMainWindow,QTableWidgetItem
+from PySide6.QtWidgets import QMainWindow,QTableWidgetItem, QLineEdit
 
 from PySide6.QtGui import QKeyEvent, QPixmap, QTransform
 from PySide6.QtCore import Qt, QTimer, QTime
@@ -31,6 +31,9 @@ class MainWindow(QMainWindow):
         # UI setup
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+
+        # Make password field hide typed characters
+        self.ui.passwordField.setEchoMode(QLineEdit.EchoMode.Password)
 
         # ROS init
         rclpy.init()
@@ -90,21 +93,27 @@ class MainWindow(QMainWindow):
 
         # GStreamer video widget
         pipeline = (
-            'udpsrc port=5000 caps="application/x-rtp, media=video, encoding-name=H264, payload=96" ! '
+            'udpsrc address=:: port=5000 '
+            'caps="application/x-rtp,media=video,encoding-name=H264,payload=96,clock-rate=90000" ! '
+            'rtpjitterbuffer latency=50 drop-on-latency=true ! '
             'rtph264depay ! h264parse ! avdec_h264 ! '
-            'videoconvert ! video/x-raw,format=BGR ! '
-            'appsink name=appsink emit-signals=true max-buffers=1 drop=true'
+            'videoconvert ! video/x-raw,format=RGB ! '
+            'appsink name=appsink emit-signals=true max-buffers=1 drop=true sync=false'
         )
         self.video = GstVideoWidget(pipeline)
         self.ui.videoLayout.addWidget(self.video)
 
         #Connect Arming and Offboard
-        self.ui.armButton.clicked.connect(self.arming_command)
-        self.ui.offboardButton.clicked.connect(self.offboard_command)
+        #self.ui.armButton.clicked.connect(self.arming_command)
+        #self.ui.offboardButton.clicked.connect(self.offboard_command)
+        self.ui.offboardButton.clicked.connect(self.command_client.start_stop_offboard)
+        self.ui.armButton.clicked.connect(self.command_client.start_stop_arming)
+
 
         #Connect Togglers (Using debug msg right now)
         self.ui.screenToggler.clicked.connect(self.command_client.start_stop_debug_msg)
         self.ui.mapToggler.clicked.connect(self.command_client.start_stop_Lidar_Map_msg)
+        self.ui.routerToggler.clicked.connect(self.command_client.start_stop_ros2router_msg)
 
         # Input mode switching
         self.current_mode = "keyboard"
@@ -347,27 +356,30 @@ class MainWindow(QMainWindow):
 
         #This 2 are responsible for sending the offboard and arming commands through the terminal.
         #Maybe not ideal solution considering the screen "freezes" while its being processed
-    def offboard_command(self):
-        print("Offboard command via terminal...")
-        cmd = 'ros2 service call /px4/offboard std_srvs/srv/SetBool "{data: true}"'
-        exit_code = os.system(cmd)
-        if exit_code == 0:
-            print("Command for offboard executed successfully in terminal.")
-        else:
-            print(f"Command for offboard failed with exit code: {exit_code}")
+    #def offboard_command(self):
+    #    print("Offboard command via terminal...")
+    #    cmd = 'ros2 service call /px4/offboard std_srvs/srv/SetBool "{data: true}"'
+    #    exit_code = os.system(cmd)
+    #    if exit_code == 0:
+    #        print("Command for offboard executed successfully in terminal.")
+    #    else:
+    #        print(f"Command for offboard failed with exit code: {exit_code}")
 
-    def arming_command(self):
-        print("Arming command via terminal...")
-        cmd = 'ros2 service call /px4/arm std_srvs/srv/SetBool "{data: true}"'
-        exit_code = os.system(cmd)
-        if exit_code == 0:
-                print("Command for arming executed successfully in terminal.")
-        else:
-                print(f"Command for arming failed with exit code: {exit_code}")
-
+    #def arming_command(self):
+    #    print("Arming command via terminal...")
+    #    cmd = 'ros2 service call /px4/arm std_srvs/srv/SetBool "{data: true}"'
+    #    exit_code = os.system(cmd)
+    #    if exit_code == 0:
+    #            print("Command for arming executed successfully in terminal.")
+    #    else:
+    #            print(f"Command for arming failed with exit code: {exit_code}")
 
     # Close Event
     def closeEvent(self, event):
+
+        if hasattr(self, "video") and self.video is not None:
+            self.video.pipeline.set_state(Gst.State.NULL)
+
         self.executor.shutdown()
         rclpy.shutdown()
         super().closeEvent(event)

@@ -103,15 +103,14 @@ class MainWindow(QMainWindow):
         self.video = GstVideoWidget(pipeline)
         self.ui.videoLayout.addWidget(self.video)
 
-        #Connect Arming and Offboard
-        #self.ui.armButton.clicked.connect(self.arming_command)
-        #self.ui.offboardButton.clicked.connect(self.offboard_command)
+        #Connect Arming and Offboard (The first 2 exist as forcing through commands on the terminal, the last 2 use David`s node(better))
+                #self.ui.armButton.clicked.connect(self.arming_command)
+                #self.ui.offboardButton.clicked.connect(self.offboard_command)
         self.ui.offboardButton.clicked.connect(self.command_client.start_stop_offboard)
         self.ui.armButton.clicked.connect(self.command_client.start_stop_arming)
 
-
         #Connect Togglers (Using debug msg right now)
-        self.ui.screenToggler.clicked.connect(self.command_client.start_stop_debug_msg)
+        self.ui.screenToggler.clicked.connect(self.command_client.start_stop_back_camera)
         self.ui.mapToggler.clicked.connect(self.command_client.start_stop_Lidar_Map_msg)
         self.ui.routerToggler.clicked.connect(self.command_client.start_stop_ros2router_msg)
 

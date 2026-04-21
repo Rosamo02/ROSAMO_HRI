@@ -27,11 +27,12 @@ class BatteryNode(Node):
             history=QoSHistoryPolicy.KEEP_LAST,
             depth=1
         )
+
         px4_qos = QoSProfile(
             reliability=QoSReliabilityPolicy.BEST_EFFORT,
-            durability=QoSDurabilityPolicy.TRANSIENT_LOCAL,
+            durability=QoSDurabilityPolicy.VOLATILE,
             history=QoSHistoryPolicy.KEEP_LAST,
-            depth=10,
+            depth=1,
         )
 
         self.current_percent = None
@@ -90,8 +91,18 @@ class BatteryNode(Node):
         self.signals.time_left_updated.emit(time_left_str)
 
     def status_callback(self, msg: VehicleStatus):
+        self.get_logger().info(
+            f"STATUS rx: arming_state={msg.arming_state}, "
+            f"nav_state={msg.nav_state}, "
+            f"user_intention={msg.nav_state_user_intention}"
+        )
+
         is_armed = "Armed" if msg.arming_state == 2 else "Disarmed"
         self.signals.arming_updated.emit(is_armed)
 
-        is_offboard = "Offboard:On" if msg.nav_state == 14 else "Offboard:Off"
+        is_offboard = (
+            "Offboard:On"
+            if msg.nav_state == 14
+            else "Offboard:Off"
+        )
         self.signals.offboard_updated.emit(is_offboard)

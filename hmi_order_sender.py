@@ -1,19 +1,29 @@
 from std_msgs.msg import String, Empty
+from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy, HistoryPolicy
 
 class HMICommandClient:
     def __init__(self, node):
         self.pub = node.create_publisher(String, "/hmi/command", 5)
 
+        qos_best_effort = QoSProfile(
+                    reliability=ReliabilityPolicy.BEST_EFFORT,
+                    durability=DurabilityPolicy.VOLATILE,
+                    history=HistoryPolicy.KEEP_LAST,
+                    depth=5,
+                )
+
         self.pubstartoff = node.create_publisher(Empty, "/start_offboard", 5)
         self.pubstopoff = node.create_publisher(Empty, "/stop_offboard", 5)
         self.pubstartarm = node.create_publisher(Empty, "/start_arming", 5)
         self.pubstoparm = node.create_publisher(Empty, "/stop_arming", 5)
-
+        self.pubstartcamera = node.create_publisher(Empty, "/start_camera_stream", qos_best_effort)
+        self.pubstopcamera = node.create_publisher(Empty, "/stop_camera_stream", qos_best_effort)
         self.i_debug = False
         self.i_Lmap = False
         self.i_router = False
         self.i_off = False
         self.i_arm = False
+        self.i_camera = False
 
     def send(self, command: str):
         msg = String()
@@ -65,3 +75,11 @@ class HMICommandClient:
         else:
             self.send("stop_ros2router")
             self.i_router = False
+
+    def start_stop_back_camera(self):
+        if not self.i_camera:
+            self.send_empty(self.pubstartcamera, "/start_camera_stream")
+            self.i_camera = True
+        else:
+            self.send_empty(self.pubstopcamera, "/stop_camera_stream")
+            self.i_camera = False

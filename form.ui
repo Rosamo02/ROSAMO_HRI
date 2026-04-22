@@ -38,10 +38,10 @@ background-color: rgb(255, 163, 72);</string>
      <widget class="QLabel" name="videoLabel">
       <property name="geometry">
        <rect>
-        <x>960</x>
-        <y>10</y>
-        <width>441</width>
-        <height>281</height>
+        <x>1230</x>
+        <y>50</y>
+        <width>571</width>
+        <height>371</height>
        </rect>
       </property>
       <property name="text">
@@ -52,7 +52,7 @@ background-color: rgb(255, 163, 72);</string>
       <property name="geometry">
        <rect>
         <x>90</x>
-        <y>590</y>
+        <y>910</y>
         <width>191</width>
         <height>21</height>
        </rect>
@@ -69,9 +69,9 @@ background-color: rgb(245, 194, 17);</string>
       <property name="geometry">
        <rect>
         <x>100</x>
-        <y>10</y>
-        <width>841</width>
-        <height>541</height>
+        <y>50</y>
+        <width>1121</width>
+        <height>641</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="videoLayout"/>
@@ -80,7 +80,7 @@ background-color: rgb(245, 194, 17);</string>
       <property name="geometry">
        <rect>
         <x>90</x>
-        <y>560</y>
+        <y>890</y>
         <width>191</width>
         <height>16</height>
        </rect>
@@ -95,23 +95,23 @@ background-color: rgb(245, 194, 17);</string>
      <widget class="QPushButton" name="screenToggler">
       <property name="geometry">
        <rect>
-        <x>330</x>
-        <y>590</y>
-        <width>81</width>
-        <height>21</height>
+        <x>100</x>
+        <y>30</y>
+        <width>151</width>
+        <height>20</height>
        </rect>
       </property>
       <property name="text">
-       <string>PushButton</string>
+       <string>Turn On BackCamera</string>
       </property>
      </widget>
      <widget class="QLabel" name="slamMapView">
       <property name="geometry">
        <rect>
-        <x>1000</x>
-        <y>300</y>
+        <x>1230</x>
+        <y>440</y>
         <width>241</width>
-        <height>241</height>
+        <height>251</height>
        </rect>
       </property>
       <property name="text">
@@ -121,9 +121,9 @@ background-color: rgb(245, 194, 17);</string>
      <widget class="QPushButton" name="mapToggler">
       <property name="geometry">
        <rect>
-        <x>1010</x>
-        <y>540</y>
-        <width>71</width>
+        <x>1230</x>
+        <y>700</y>
+        <width>91</width>
         <height>21</height>
        </rect>
       </property>
@@ -131,7 +131,20 @@ background-color: rgb(245, 194, 17);</string>
        <string notr="true"/>
       </property>
       <property name="text">
-       <string>PushButton</string>
+       <string>Start Slam</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="maincameraToggler">
+      <property name="geometry">
+       <rect>
+        <x>1230</x>
+        <y>20</y>
+        <width>161</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Turn on Front Camera</string>
       </property>
      </widget>
     </widget>
@@ -321,6 +334,19 @@ background-color: rgb(245, 194, 17);</string>
       </property>
       <property name="text">
        <string>TextLabel</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="localprocessButton">
+      <property name="geometry">
+       <rect>
+        <x>430</x>
+        <y>10</y>
+        <width>94</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>PushButton</string>
       </property>
      </widget>
     </widget>
@@ -563,6 +589,19 @@ background-color: rgb(245, 194, 17);</string>
       <rect>
        <x>360</x>
        <y>30</y>
+       <width>421</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="labelPing">
+     <property name="geometry">
+      <rect>
+       <x>360</x>
+       <y>10</y>
        <width>421</width>
        <height>18</height>
       </rect>

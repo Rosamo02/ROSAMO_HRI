@@ -9,6 +9,9 @@ from alarm import AlarmSeverity
 from teleop_controller import TeleopController
 from hmi_order_sender import HMICommandClient
 from slammap_node import MapNode
+from ping_monitor import PingMonitor
+from gi.repository import Gst
+from local_process_manager import LocalProcessManager
 
 from PySide6.QtWidgets import QMainWindow,QTableWidgetItem, QLineEdit
 
@@ -47,6 +50,10 @@ class MainWindow(QMainWindow):
         self.login = LoginManager()
         self.ui.Login_Button.clicked.connect(self.handle_login)
 
+        #Local process manager
+        self.local_process_manager = LocalProcessManager()
+        self.ui.localprocessButton.clicked.connect(self.toggle_hmi_receiver)
+
         # Hide sidebar initially
         self.ui.sidebarWidget.setVisible(False)
 
@@ -76,7 +83,7 @@ class MainWindow(QMainWindow):
         self.teleop_controller = TeleopController(self.teleop_node)
         self.image_node = ImageViewer("/apriltag/overlay/compressed")
         self.image_node.new_frame.connect(self.update_image)
-        self.command_client = HMICommandClient(self.teleop_node)
+        self.command_client = HMICommandClient(self.teleop_node,self.ui.screenToggler,self.ui.maincameraToggler)
         self.map_node = MapNode()
         self.map_node.bridge.map_updated.connect(self.update_map_view)
 
@@ -113,7 +120,7 @@ class MainWindow(QMainWindow):
         self.ui.screenToggler.clicked.connect(self.command_client.start_stop_back_camera)
         self.ui.mapToggler.clicked.connect(self.command_client.start_stop_Lidar_Map_msg)
         self.ui.routerToggler.clicked.connect(self.command_client.start_stop_ros2router_msg)
-
+        self.ui.maincameraToggler.clicked.connect(self.command_client.start_stop_front_camera)
         # Input mode switching
         self.current_mode = "keyboard"
         self.ui.toggleInputButton.clicked.connect(self.on_toggleInputButton_clicked)
@@ -167,6 +174,14 @@ class MainWindow(QMainWindow):
         self.battery_node.signals.time_left_updated.connect(self.update_time_left_ui)
         self.battery_node.signals.arming_updated.connect(self.update_arming_ui)
         self.battery_node.signals.offboard_updated.connect(self.update_offboard_ui)
+
+        #ping monitor infastructure
+        self.ui.labelPing.setText("Ping: -- ms")
+
+        self.ping_monitor = PingMonitor("Robot", 2000, self)
+        self.ping_monitor.ping_updated.connect(self.update_ping_ui)
+        self.ping_monitor.ping_failed.connect(self.handle_ping_failure)
+        self.ping_monitor.start()
 
         print("MainWindow initialized successfully.")
 
@@ -237,7 +252,6 @@ class MainWindow(QMainWindow):
         color = "#2d89ef" if "On" in status_text else "gray"
         self.ui.offboardLabel.setStyleSheet(f"color: {color};")
 
-    # Status Bar
     def update_status_bar(self):
         current_time = QTime.currentTime().toString("HH:mm:ss")
         self.ui.labelTime.setText(f"Time: {current_time}")
@@ -374,11 +388,42 @@ class MainWindow(QMainWindow):
     #            print(f"Command for arming failed with exit code: {exit_code}")
 
     # Close Event
+
+    def update_ping_ui(self, ping_ms):
+        self.ui.labelPing.setText(f"Ping: {ping_ms:.1f} ms")
+
+        if ping_ms < 80:
+            color = "green"
+        elif ping_ms < 150:
+            color = "orange"
+        else:
+            color = "red"
+
+        self.ui.labelPing.setStyleSheet(f"color: {color}; font-weight: bold;")
+
+
+    def handle_ping_failure(self, reason):
+        self.ui.labelPing.setText("Ping: timeout")
+        self.ui.labelPing.setStyleSheet("color: red; font-weight: bold;")
+        print(f"Ping failed: {reason}")
+
+    def toggle_hmi_receiver(self):
+        result = self.local_process_manager.toggle_hmi_receiver()
+
+        if result == "started":
+            self.ui.localprocessButton.setText("Stop HMI Receiver")
+        elif result == "stopped":
+            self.ui.localprocessButton.setText("Start HMI Receiver")
+        else:
+            print("Failed to toggle hmi_command_receiver.py")
+
+
     def closeEvent(self, event):
 
         if hasattr(self, "video") and self.video is not None:
             self.video.pipeline.set_state(Gst.State.NULL)
-
+        if hasattr(self, "local_process_manager"):
+            self.local_process_manager.stop_hmi_receiver()
         self.executor.shutdown()
         rclpy.shutdown()
         super().closeEvent(event)

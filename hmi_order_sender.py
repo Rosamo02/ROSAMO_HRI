@@ -2,7 +2,9 @@ from std_msgs.msg import String, Empty
 from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy, HistoryPolicy
 
 class HMICommandClient:
-    def __init__(self, node):
+    def __init__(self, node,screen_button=None,apriltag_button=None):
+
+        #Local publisher
         self.pub = node.create_publisher(String, "/hmi/command", 5)
 
         qos_best_effort = QoSProfile(
@@ -12,18 +14,54 @@ class HMICommandClient:
                     depth=5,
                 )
 
+        #Publisher into the robot
         self.pubstartoff = node.create_publisher(Empty, "/start_offboard", 5)
         self.pubstopoff = node.create_publisher(Empty, "/stop_offboard", 5)
+
         self.pubstartarm = node.create_publisher(Empty, "/start_arming", 5)
         self.pubstoparm = node.create_publisher(Empty, "/stop_arming", 5)
+
         self.pubstartcamera = node.create_publisher(Empty, "/start_camera_stream", qos_best_effort)
         self.pubstopcamera = node.create_publisher(Empty, "/stop_camera_stream", qos_best_effort)
+
+        self.pubstartcamera_front = node.create_publisher(Empty, "/start_station_detection_APRILTAG", qos_best_effort)
+        self.pubstopcamera_front = node.create_publisher(Empty, "/stop_station_detection_APRILTAG", qos_best_effort)
+
+        self.pubstartlivox = node.create_publisher(Empty, "/start_livox_driver", qos_best_effort)
+        self.pubstoplivox = node.create_publisher(Empty, "/stop_livox_driver", qos_best_effort)
+
+        self.pubstartpclscan = node.create_publisher(Empty, "/start_pointcloud_to_laserscan", qos_best_effort)
+        self.pubstoppclscan = node.create_publisher(Empty, "/stop_pointcloud_to_laserscan", qos_best_effort)
+
+        self.pubstartvicon = node.create_publisher(Empty, "/start_vicon_bridge", qos_best_effort)
+        self.pubstopvicon = node.create_publisher(Empty, "/stop_vicon_bridge", qos_best_effort)
+
+        self.pubstartekf = node.create_publisher(Empty, "/start_ekf", qos_best_effort)
+        self.pubstopekf = node.create_publisher(Empty, "/stop_ekf", qos_best_effort)
+
+        self.pubstartstatictf = node.create_publisher(Empty, "/start_static_tf_livox", qos_best_effort)
+        self.pubstopstatictf = node.create_publisher(Empty, "/stop_static_tf_livox", qos_best_effort)
+
+        self.pubstartbridge = node.create_publisher(Empty, "/start_px4_odom_bridge", qos_best_effort)
+        self.pubstopbridge = node.create_publisher(Empty, "/stop_px4_odom_bridge", qos_best_effort)
+
+        self.screen_button = screen_button
+        self.apriltag_button = apriltag_button
+
+        #Starting booleans(Assumes that all features are turn off previously to the interface being used)
         self.i_debug = False
         self.i_Lmap = False
         self.i_router = False
         self.i_off = False
         self.i_arm = False
         self.i_camera = False
+        self.i_front_camera = False
+
+        if self.screen_button is not None:
+            self.screen_button.setText("Turn On Back Camera")
+
+        if self.apriltag_button is not None:
+            self.apriltag_button.setText("Turn On Back Camera")
 
     def send(self, command: str):
         msg = String()
@@ -47,9 +85,25 @@ class HMICommandClient:
     def start_stop_Lidar_Map_msg(self):
         if not self.i_Lmap:
             self.send("start_mapping")
+
+            self.send_empty(self.pubstartlivox, "/start_livox_driver")
+            self.send_empty(self.pubstartpclscan, "/start_pointcloud_to_laserscan")
+            self.send_empty(self.pubstartbridge, "/start_px4_odom_bridge")
+            self.send_empty(self.pubstartvicon, "/start_vicon_bridge")
+            self.send_empty(self.pubstartekf, "/start_ekf")
+            self.send_empty(self.pubstartstatictf, "/start_static_tf_livox")
+
             self.i_Lmap = True
         else:
             self.send("stop_mapping")
+
+            self.send_empty(self.pubstopekf, "/stop_ekf")
+            self.send_empty(self.pubstopvicon, "/stop_vicon_bridge")
+            self.send_empty(self.pubstoppclscan, "/stop_pointcloud_to_laserscan")
+            self.send_empty(self.pubstopbridge, "/stop_px4_odom_bridge")
+            self.send_empty(self.pubstoplivox, "/stop_livox_driver")
+            self.send_empty(self.pubstopstatictf, "/stop_static_tf_livox")
+
             self.i_Lmap = False
 
     def start_stop_offboard(self):
@@ -80,6 +134,22 @@ class HMICommandClient:
         if not self.i_camera:
             self.send_empty(self.pubstartcamera, "/start_camera_stream")
             self.i_camera = True
+            if self.screen_button is not None:
+                self.screen_button.setText("Turn Off Back Camera")
         else:
             self.send_empty(self.pubstopcamera, "/stop_camera_stream")
             self.i_camera = False
+            if self.screen_button is not None:
+                self.screen_button.setText("Turn On Back Camera")
+
+    def start_stop_front_camera(self):
+        if not self.i_front_camera:
+            self.send_empty(self.pubstartcamera_front, "/start_station_detection_APRILTAG")
+            self.i_front_camera = True
+            if self.apriltag_button is not None:
+                self.apriltag_button.setText("Turn Off Back Camera")
+        else:
+            self.send_empty(self.pubstopcamera_front, "/stop_station_detection_APRILTAG")
+            self.i_front_camera = False
+            if self.apriltag_button is not None:
+                self.apriltag_button.setText("Turn On Back Camera")

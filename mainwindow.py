@@ -53,6 +53,7 @@ class MainWindow(QMainWindow):
         #Local process manager
         self.local_process_manager = LocalProcessManager()
         self.ui.localprocessButton.clicked.connect(self.toggle_hmi_receiver)
+        self.ui.localprocessLabel.setText("HMI Receiver OFF")
 
         # Hide sidebar initially
         self.ui.sidebarWidget.setVisible(False)
@@ -174,6 +175,7 @@ class MainWindow(QMainWindow):
         self.battery_node.signals.time_left_updated.connect(self.update_time_left_ui)
         self.battery_node.signals.arming_updated.connect(self.update_arming_ui)
         self.battery_node.signals.offboard_updated.connect(self.update_offboard_ui)
+        self.battery_node.signals.connection_updated.connect(self.update_connection_ui)
 
         #ping monitor infastructure
         self.ui.labelPing.setText("Ping: -- ms")
@@ -244,13 +246,37 @@ class MainWindow(QMainWindow):
 
     def update_arming_ui(self, status_text):
         self.ui.armLabel.setText(status_text)
-        color = "red" if status_text == "Armed" else "gray"
+        if status_text == "Armed":
+            color = "green"
+        elif "No Data" in status_text or "Stale" in status_text:
+            color = "orange"
+        else:
+            color = "gray"
         self.ui.armLabel.setStyleSheet(f"color: {color}; font-weight: bold;")
 
     def update_offboard_ui(self, status_text):
         self.ui.offboardLabel.setText(status_text)
-        color = "#2d89ef" if "On" in status_text else "gray"
-        self.ui.offboardLabel.setStyleSheet(f"color: {color};")
+        if status_text == "Offboard: On":
+            color = "#2d89ef"
+        elif status_text == "Offboard: Requested":
+            color = "orange"
+        elif "No Data" in status_text or "Stale" in status_text:
+            color = "orange"
+        else:
+            color = "gray"
+        self.ui.offboardLabel.setStyleSheet(f"color: {color}; font-weight: bold;")
+
+    def update_connection_ui(self, status_text):
+        self.ui.routerLabel.setText(status_text)
+        if status_text == "Connection: P2P":
+            color = "green"
+        elif status_text == "Connection: Tunneled":
+            color = "orange"
+        else:
+            color = "red"
+        self.ui.routerLabel.setStyleSheet(
+            f"color: {color}; font-weight: bold;"
+        )
 
     def update_status_bar(self):
         current_time = QTime.currentTime().toString("HH:mm:ss")
@@ -411,9 +437,11 @@ class MainWindow(QMainWindow):
         result = self.local_process_manager.toggle_hmi_receiver()
 
         if result == "started":
-            self.ui.localprocessButton.setText("Stop HMI Receiver")
+            self.ui.localprocessButton.setText("Stop HMI \nReceiver")
+            self.ui.localprocessLabel.setText("HMI Receiver ON")
         elif result == "stopped":
-            self.ui.localprocessButton.setText("Start HMI Receiver")
+            self.ui.localprocessButton.setText("Start HMI \nReceiver")
+            self.ui.localprocessLabel.setText("HMI Receiver OFF")
         else:
             print("Failed to toggle hmi_command_receiver.py")
 

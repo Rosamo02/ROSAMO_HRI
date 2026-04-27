@@ -261,10 +261,10 @@ background-color: rgb(245, 194, 17);</string>
      <widget class="QPushButton" name="offboardButton">
       <property name="geometry">
        <rect>
-        <x>230</x>
-        <y>10</y>
-        <width>94</width>
-        <height>26</height>
+        <x>160</x>
+        <y>120</y>
+        <width>111</width>
+        <height>111</height>
        </rect>
       </property>
       <property name="text">
@@ -274,10 +274,10 @@ background-color: rgb(245, 194, 17);</string>
      <widget class="QPushButton" name="armButton">
       <property name="geometry">
        <rect>
-        <x>330</x>
-        <y>10</y>
-        <width>94</width>
-        <height>26</height>
+        <x>160</x>
+        <y>230</y>
+        <width>111</width>
+        <height>111</height>
        </rect>
       </property>
       <property name="text">
@@ -287,10 +287,10 @@ background-color: rgb(245, 194, 17);</string>
      <widget class="QLabel" name="offboardLabel">
       <property name="geometry">
        <rect>
-        <x>240</x>
-        <y>40</y>
-        <width>71</width>
-        <height>18</height>
+        <x>280</x>
+        <y>130</y>
+        <width>171</width>
+        <height>91</height>
        </rect>
       </property>
       <property name="text">
@@ -300,10 +300,10 @@ background-color: rgb(245, 194, 17);</string>
      <widget class="QLabel" name="armLabel">
       <property name="geometry">
        <rect>
-        <x>340</x>
-        <y>40</y>
-        <width>91</width>
-        <height>18</height>
+        <x>280</x>
+        <y>240</y>
+        <width>171</width>
+        <height>91</height>
        </rect>
       </property>
       <property name="text">
@@ -313,23 +313,25 @@ background-color: rgb(245, 194, 17);</string>
      <widget class="QPushButton" name="routerToggler">
       <property name="geometry">
        <rect>
-        <x>90</x>
+        <x>160</x>
         <y>10</y>
-        <width>121</width>
-        <height>26</height>
+        <width>111</width>
+        <height>111</height>
        </rect>
       </property>
       <property name="text">
-       <string>Connect2Robot</string>
+       <string>Connect 
+2
+Robot</string>
       </property>
      </widget>
      <widget class="QLabel" name="routerLabel">
       <property name="geometry">
        <rect>
-        <x>100</x>
-        <y>40</y>
-        <width>71</width>
-        <height>18</height>
+        <x>280</x>
+        <y>20</y>
+        <width>171</width>
+        <height>91</height>
        </rect>
       </property>
       <property name="text">
@@ -339,14 +341,28 @@ background-color: rgb(245, 194, 17);</string>
      <widget class="QPushButton" name="localprocessButton">
       <property name="geometry">
        <rect>
-        <x>430</x>
-        <y>10</y>
-        <width>94</width>
-        <height>26</height>
+        <x>160</x>
+        <y>340</y>
+        <width>111</width>
+        <height>111</height>
        </rect>
       </property>
       <property name="text">
-       <string>PushButton</string>
+       <string>Start HMI 
+Receiver</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="localprocessLabel">
+      <property name="geometry">
+       <rect>
+        <x>280</x>
+        <y>350</y>
+        <width>171</width>
+        <height>91</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
       </property>
      </widget>
     </widget>

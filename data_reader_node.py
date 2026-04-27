@@ -1,3 +1,6 @@
+from time import monotonic
+import subprocess
+
 from rclpy.node import Node
 from px4_msgs.msg import VehicleStatus
 from sensor_msgs.msg import BatteryState
@@ -15,6 +18,7 @@ class BatterySignalBridge(QObject):
     arming_updated = Signal(str)
     offboard_updated = Signal(str)
     time_left_updated = Signal(str)
+    connection_updated = Signal(str)
 
 
 class BatteryNode(Node):
@@ -32,12 +36,15 @@ class BatteryNode(Node):
             reliability=QoSReliabilityPolicy.BEST_EFFORT,
             durability=QoSDurabilityPolicy.VOLATILE,
             history=QoSHistoryPolicy.KEEP_LAST,
-            depth=1,
+            depth=10,
         )
 
         self.current_percent = None
         self.current_current = None
         self.current_charge = None
+
+        self.last_status_rx_time = None
+        self.last_status_timestamp = 0
 
         self.battery_sub = self.create_subscription(
             BatteryState,
@@ -54,6 +61,10 @@ class BatteryNode(Node):
         )
 
         self.time_left_timer = self.create_timer(2.0, self.update_time_left)
+        self.status_watchdog_timer = self.create_timer(0.5, self.check_status_timeout)
+
+        # Check Husarnet connection every 3 seconds
+        self.connection_timer = self.create_timer(3.0, self.update_connection_status)
 
     def battery_callback(self, msg: BatteryState):
         self.current_percent = max(0.0, min(100.0, msg.percentage * 100.0))
@@ -86,15 +97,82 @@ class BatteryNode(Node):
         self.signals.time_left_updated.emit(time_left_str)
 
     def status_callback(self, msg: VehicleStatus):
-        print("status_callback fired")
-        self.get_logger().info(
-            f"STATUS rx: arming_state={msg.arming_state}, "
-            f"nav_state={msg.nav_state}, "
-            f"user_intention={msg.nav_state_user_intention}"
+        self.last_status_rx_time = monotonic()
+
+        if msg.timestamp <= self.last_status_timestamp:
+            return
+        self.last_status_timestamp = msg.timestamp
+
+        armed = (msg.arming_state == VehicleStatus.ARMING_STATE_ARMED)
+        offboard_active = (
+            msg.nav_state == VehicleStatus.NAVIGATION_STATE_OFFBOARD
+        )
+        offboard_requested = (
+            msg.nav_state_user_intention == VehicleStatus.NAVIGATION_STATE_OFFBOARD
         )
 
-        is_armed = "Armed" if msg.arming_state == 2 else "Disarmed"
-        self.signals.arming_updated.emit(is_armed)
+        print(
+            f"STATUS RX ts={msg.timestamp} "
+            f"arming_state={msg.arming_state} armed={armed} "
+            f"nav_state={msg.nav_state} offboard_active={offboard_active} "
+            f"user_intention={msg.nav_state_user_intention} "
+            f"offboard_requested={offboard_requested}",
+            flush=True,
+        )
 
-        is_offboard = "Offboard:On" if msg.nav_state == 14 else "Offboard:Off"
-        self.signals.offboard_updated.emit(is_offboard)
+        self.signals.arming_updated.emit("Armed" if armed else "Disarmed")
+
+        if offboard_active:
+            offboard_text = "Offboard: On"
+        elif offboard_requested:
+            offboard_text = "Offboard: Requested"
+        else:
+            offboard_text = "Offboard: Off"
+
+        self.signals.offboard_updated.emit(offboard_text)
+
+    def check_status_timeout(self):
+        if self.last_status_rx_time is None:
+            self.signals.arming_updated.emit("Arming: No Data")
+            self.signals.offboard_updated.emit("Offboard: No Data")
+            return
+
+        if monotonic() - self.last_status_rx_time > 1.5:
+            self.signals.arming_updated.emit("Arming: Stale")
+            self.signals.offboard_updated.emit("Offboard: Stale")
+
+    def update_connection_status(self):
+        status = self.get_connection_status("Robot")
+        self.signals.connection_updated.emit(status)
+
+    def get_connection_status(self, peer_name: str) -> str:
+        try:
+            result = subprocess.run(
+                ["husarnet", "status"],
+                capture_output=True,
+                text=True,
+                timeout=2.0,
+            )
+
+            if result.returncode != 0:
+                return "Connection: None"
+
+            lines = (result.stdout or "").splitlines()
+            peer_name_lower = peer_name.lower()
+
+            for i, line in enumerate(lines):
+                if peer_name_lower in line.lower():
+                    nearby = " ".join(lines[i:i + 4]).lower()
+
+                    if "direct" in nearby:
+                        return "Connection: P2P"
+                    if "tunelled" in nearby or "tunneled" in nearby:
+                        return "Connection: Tunneled"
+
+                    return "Connection: None"
+
+            return "Connection: None"
+
+        except Exception as e:
+            print(f"Failed to get Husarnet status: {e}")
+            return "Connection: None"

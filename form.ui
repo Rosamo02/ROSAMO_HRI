@@ -52,7 +52,7 @@ background-color: rgb(255, 163, 72);</string>
       <property name="geometry">
        <rect>
         <x>90</x>
-        <y>910</y>
+        <y>730</y>
         <width>191</width>
         <height>21</height>
        </rect>
@@ -71,7 +71,7 @@ background-color: rgb(245, 194, 17);</string>
         <x>100</x>
         <y>50</y>
         <width>1121</width>
-        <height>641</height>
+        <height>591</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="videoLayout"/>
@@ -80,7 +80,7 @@ background-color: rgb(245, 194, 17);</string>
       <property name="geometry">
        <rect>
         <x>90</x>
-        <y>890</y>
+        <y>710</y>
         <width>191</width>
         <height>16</height>
        </rect>
@@ -110,8 +110,8 @@ background-color: rgb(245, 194, 17);</string>
        <rect>
         <x>1230</x>
         <y>440</y>
-        <width>241</width>
-        <height>251</height>
+        <width>331</width>
+        <height>331</height>
        </rect>
       </property>
       <property name="text">
@@ -122,7 +122,7 @@ background-color: rgb(245, 194, 17);</string>
       <property name="geometry">
        <rect>
         <x>1230</x>
-        <y>700</y>
+        <y>780</y>
         <width>91</width>
         <height>21</height>
        </rect>
@@ -147,32 +147,60 @@ background-color: rgb(245, 194, 17);</string>
        <string>Turn on Front Camera</string>
       </property>
      </widget>
+     <widget class="QWidget" name="Velocimeter" native="true">
+      <property name="geometry">
+       <rect>
+        <x>360</x>
+        <y>660</y>
+        <width>361</width>
+        <height>131</height>
+       </rect>
+      </property>
+      <widget class="QLabel" name="linearspeedLabel">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>311</width>
+         <height>18</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="gpsLabel">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>40</y>
+         <width>321</width>
+         <height>18</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QLabel" name="mapImageView">
+      <property name="geometry">
+       <rect>
+        <x>1580</x>
+        <y>410</y>
+        <width>331</width>
+        <height>331</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="Main_2_pg">
      <property name="styleSheet">
       <string notr="true">background-color: rgb(246, 211, 45);</string>
      </property>
-     <widget class="QWidget" name="widget_2" native="true">
-      <property name="geometry">
-       <rect>
-        <x>-1</x>
-        <y>-1</y>
-        <width>1221</width>
-        <height>641</height>
-       </rect>
-      </property>
-      <widget class="QWidget" name="verticalLayoutWidget_2">
-       <property name="geometry">
-        <rect>
-         <x>-1</x>
-         <y>-1</y>
-         <width>1231</width>
-         <height>641</height>
-        </rect>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout"/>
-      </widget>
-     </widget>
     </widget>
     <widget class="QWidget" name="Settings_pg"/>
     <widget class="QWidget" name="Map_pg">
@@ -188,6 +216,28 @@ background-color: rgb(245, 194, 17);</string>
         <height>641</height>
        </rect>
       </property>
+     </widget>
+     <widget class="QWidget" name="verticalLayoutWidget_2">
+      <property name="geometry">
+       <rect>
+        <x>1399</x>
+        <y>79</y>
+        <width>351</width>
+        <height>171</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="mapControlsLayout">
+       <item>
+        <widget class="QLineEdit" name="treeInput"/>
+       </item>
+       <item>
+        <widget class="QPushButton" name="addTreeButton">
+         <property name="text">
+          <string>PushButton</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </widget>
     <widget class="QWidget" name="Login_pg">
@@ -527,6 +577,29 @@ Receiver</string>
      </property>
      <property name="text">
       <string>Map</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="Main_2_Button">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>290</y>
+       <width>101</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+    background-color: none;
+    color: white;
+    border: none;
+    text-align: left;
+    padding: 8px;
+}
+</string>
+     </property>
+     <property name="text">
+      <string>Main_2</string>
      </property>
     </widget>
    </widget>

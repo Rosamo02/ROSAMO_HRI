@@ -1,14 +1,17 @@
 import rclpy
 from rclpy.node import Node
+
 from nav_msgs.msg import OccupancyGrid
+from sensor_msgs.msg import Image
 
 from PySide6.QtGui import QImage, QColor
 from PySide6.QtCore import Signal, QObject
 
+from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy, HistoryPolicy
 
 class MapBridge(QObject):
     map_updated = Signal(QImage)
-
+    map_image_updated = Signal(QImage)
 
 class MapNode(Node):
     def __init__(self):
@@ -16,11 +19,25 @@ class MapNode(Node):
 
         self.bridge = MapBridge()
 
-        self.subscription = self.create_subscription(
+        map_qos = QoSProfile(
+            reliability=ReliabilityPolicy.BEST_EFFORT,
+            durability=DurabilityPolicy.VOLATILE,
+            history=HistoryPolicy.KEEP_LAST,
+            depth=10
+        )
+
+        self.map_subscription = self.create_subscription(
             OccupancyGrid,
             "/map",
             self.map_callback,
-            10
+            map_qos
+        )
+
+        self.map_image_subscription = self.create_subscription(
+            Image,
+            "/map_image",
+            self.map_image_callback,
+            map_qos
         )
 
     def map_callback(self, msg):
@@ -44,3 +61,20 @@ class MapNode(Node):
                 img.setPixelColor(x, h - y - 1, color)
 
         self.bridge.map_updated.emit(img)
+
+    def map_image_callback(self, msg):
+        if msg.encoding.lower() != "bgr8":
+            self.get_logger().warn(
+                f"Unsupported /map_image encoding: {msg.encoding}"
+            )
+            return
+
+        qimg = QImage(
+            bytes(msg.data),
+            msg.width,
+            msg.height,
+            msg.step,
+            QImage.Format_BGR888
+        ).copy()
+
+        self.bridge.map_image_updated.emit(qimg)

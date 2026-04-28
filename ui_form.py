@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'form.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.10.2
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -45,18 +45,18 @@ class Ui_MainWindow(object):
         self.videoLabel.setGeometry(QRect(1230, 50, 571, 371))
         self.toggleInputButton = QPushButton(self.Main_pg)
         self.toggleInputButton.setObjectName(u"toggleInputButton")
-        self.toggleInputButton.setGeometry(QRect(90, 910, 191, 21))
+        self.toggleInputButton.setGeometry(QRect(90, 730, 191, 21))
         self.toggleInputButton.setStyleSheet(u"color: rgb(255, 255, 255);\n"
 "background-color: rgb(245, 194, 17);")
         self.verticalLayoutWidget = QWidget(self.Main_pg)
         self.verticalLayoutWidget.setObjectName(u"verticalLayoutWidget")
-        self.verticalLayoutWidget.setGeometry(QRect(100, 50, 1121, 641))
+        self.verticalLayoutWidget.setGeometry(QRect(100, 50, 1121, 591))
         self.videoLayout = QVBoxLayout(self.verticalLayoutWidget)
         self.videoLayout.setObjectName(u"videoLayout")
         self.videoLayout.setContentsMargins(0, 0, 0, 0)
         self.powerSlider = QSlider(self.Main_pg)
         self.powerSlider.setObjectName(u"powerSlider")
-        self.powerSlider.setGeometry(QRect(90, 890, 191, 16))
+        self.powerSlider.setGeometry(QRect(90, 710, 191, 16))
         self.powerSlider.setMaximum(100)
         self.powerSlider.setOrientation(Qt.Orientation.Horizontal)
         self.screenToggler = QPushButton(self.Main_pg)
@@ -64,27 +64,30 @@ class Ui_MainWindow(object):
         self.screenToggler.setGeometry(QRect(100, 30, 151, 20))
         self.slamMapView = QLabel(self.Main_pg)
         self.slamMapView.setObjectName(u"slamMapView")
-        self.slamMapView.setGeometry(QRect(1230, 440, 241, 251))
+        self.slamMapView.setGeometry(QRect(1230, 440, 331, 331))
         self.mapToggler = QPushButton(self.Main_pg)
         self.mapToggler.setObjectName(u"mapToggler")
-        self.mapToggler.setGeometry(QRect(1230, 700, 91, 21))
+        self.mapToggler.setGeometry(QRect(1230, 780, 91, 21))
         self.mapToggler.setStyleSheet(u"")
         self.maincameraToggler = QPushButton(self.Main_pg)
         self.maincameraToggler.setObjectName(u"maincameraToggler")
         self.maincameraToggler.setGeometry(QRect(1230, 20, 161, 26))
+        self.Velocimeter = QWidget(self.Main_pg)
+        self.Velocimeter.setObjectName(u"Velocimeter")
+        self.Velocimeter.setGeometry(QRect(360, 660, 361, 131))
+        self.linearspeedLabel = QLabel(self.Velocimeter)
+        self.linearspeedLabel.setObjectName(u"linearspeedLabel")
+        self.linearspeedLabel.setGeometry(QRect(10, 10, 311, 18))
+        self.gpsLabel = QLabel(self.Velocimeter)
+        self.gpsLabel.setObjectName(u"gpsLabel")
+        self.gpsLabel.setGeometry(QRect(10, 40, 321, 18))
+        self.mapImageView = QLabel(self.Main_pg)
+        self.mapImageView.setObjectName(u"mapImageView")
+        self.mapImageView.setGeometry(QRect(1580, 410, 331, 331))
         self.stackedWidget.addWidget(self.Main_pg)
         self.Main_2_pg = QWidget()
         self.Main_2_pg.setObjectName(u"Main_2_pg")
         self.Main_2_pg.setStyleSheet(u"background-color: rgb(246, 211, 45);")
-        self.widget_2 = QWidget(self.Main_2_pg)
-        self.widget_2.setObjectName(u"widget_2")
-        self.widget_2.setGeometry(QRect(-1, -1, 1221, 641))
-        self.verticalLayoutWidget_2 = QWidget(self.widget_2)
-        self.verticalLayoutWidget_2.setObjectName(u"verticalLayoutWidget_2")
-        self.verticalLayoutWidget_2.setGeometry(QRect(-1, -1, 1231, 641))
-        self.verticalLayout = QVBoxLayout(self.verticalLayoutWidget_2)
-        self.verticalLayout.setObjectName(u"verticalLayout")
-        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.stackedWidget.addWidget(self.Main_2_pg)
         self.Settings_pg = QWidget()
         self.Settings_pg.setObjectName(u"Settings_pg")
@@ -95,6 +98,22 @@ class Ui_MainWindow(object):
         self.mapView = QWebEngineView(self.Map_pg)
         self.mapView.setObjectName(u"mapView")
         self.mapView.setGeometry(QRect(-1, -1, 1231, 641))
+        self.verticalLayoutWidget_2 = QWidget(self.Map_pg)
+        self.verticalLayoutWidget_2.setObjectName(u"verticalLayoutWidget_2")
+        self.verticalLayoutWidget_2.setGeometry(QRect(1399, 79, 351, 171))
+        self.mapControlsLayout = QVBoxLayout(self.verticalLayoutWidget_2)
+        self.mapControlsLayout.setObjectName(u"mapControlsLayout")
+        self.mapControlsLayout.setContentsMargins(0, 0, 0, 0)
+        self.treeInput = QLineEdit(self.verticalLayoutWidget_2)
+        self.treeInput.setObjectName(u"treeInput")
+
+        self.mapControlsLayout.addWidget(self.treeInput)
+
+        self.addTreeButton = QPushButton(self.verticalLayoutWidget_2)
+        self.addTreeButton.setObjectName(u"addTreeButton")
+
+        self.mapControlsLayout.addWidget(self.addTreeButton)
+
         self.stackedWidget.addWidget(self.Map_pg)
         self.Login_pg = QWidget()
         self.Login_pg.setObjectName(u"Login_pg")
@@ -214,6 +233,17 @@ class Ui_MainWindow(object):
 "    padding: 8px;\n"
 "}\n"
 "")
+        self.Main_2_Button = QPushButton(self.sidebarWidget)
+        self.Main_2_Button.setObjectName(u"Main_2_Button")
+        self.Main_2_Button.setGeometry(QRect(0, 290, 101, 61))
+        self.Main_2_Button.setStyleSheet(u"QPushButton {\n"
+"    background-color: none;\n"
+"    color: white;\n"
+"    border: none;\n"
+"    text-align: left;\n"
+"    padding: 8px;\n"
+"}\n"
+"")
         self.statusWidget = QWidget(self.widget)
         self.statusWidget.setObjectName(u"statusWidget")
         self.statusWidget.setGeometry(QRect(-130, 0, 2461, 81))
@@ -260,6 +290,10 @@ class Ui_MainWindow(object):
         self.slamMapView.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.mapToggler.setText(QCoreApplication.translate("MainWindow", u"Start Slam", None))
         self.maincameraToggler.setText(QCoreApplication.translate("MainWindow", u"Turn on Front Camera", None))
+        self.linearspeedLabel.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
+        self.gpsLabel.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
+        self.mapImageView.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
+        self.addTreeButton.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
         self.Login_Button.setText(QCoreApplication.translate("MainWindow", u"Login", None))
         self.loginLabel.setText(QCoreApplication.translate("MainWindow", u"User:", None))
         self.loginLabel_2.setText(QCoreApplication.translate("MainWindow", u"Password:", None))
@@ -280,6 +314,7 @@ class Ui_MainWindow(object):
         self.Alarm_Button.setText(QCoreApplication.translate("MainWindow", u"Alarms", None))
         self.Settings_Button.setText(QCoreApplication.translate("MainWindow", u"Settings", None))
         self.Map_Button.setText(QCoreApplication.translate("MainWindow", u"Map", None))
+        self.Main_2_Button.setText(QCoreApplication.translate("MainWindow", u"Main_2", None))
         self.labelTime.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.labelBattery.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.alarmIcon.setText("")

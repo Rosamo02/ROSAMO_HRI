@@ -1,8 +1,9 @@
 from time import monotonic
 import subprocess
+import math
 
 from rclpy.node import Node
-from px4_msgs.msg import VehicleStatus
+from px4_msgs.msg import VehicleStatus, VehicleOdometry
 from sensor_msgs.msg import BatteryState
 from rclpy.qos import (
     QoSProfile,
@@ -19,6 +20,7 @@ class BatterySignalBridge(QObject):
     offboard_updated = Signal(str)
     time_left_updated = Signal(str)
     connection_updated = Signal(str)
+    odom_updated = Signal(str)
 
 
 class BatteryNode(Node):
@@ -57,6 +59,13 @@ class BatteryNode(Node):
             VehicleStatus,
             '/fmu/out/vehicle_status_v1',
             self.status_callback,
+            px4_status_qos
+        )
+
+        self.odom_sub = self.create_subscription(
+            VehicleOdometry,
+            '/fmu/out/vehicle_odometry',
+            self.odom_callback,
             px4_status_qos
         )
 
@@ -176,3 +185,12 @@ class BatteryNode(Node):
         except Exception as e:
             print(f"Failed to get Husarnet status: {e}")
             return "Connection: None"
+
+    def odom_callback(self, msg: VehicleOdometry):
+        vx = float(msg.velocity[0])
+        vy = float(msg.velocity[1])
+        vz = float(msg.velocity[2])
+        az = float(msg.angular_velocity[2])
+        speed = math.sqrt(vx * vx + vy * vy + vz * vz)
+        angular = az * 180/math.pi
+        self.signals.odom_updated.emit(f"Speed: {speed:.2f} m/s AngularSpeed: {angular:.2f} º/s ")

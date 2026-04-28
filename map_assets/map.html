@@ -11,6 +11,7 @@
             height: 100%;
             margin: 0;
         }
+
         #map {
             width: 100%;
             height: 100%;
@@ -31,15 +32,51 @@
             shadowUrl: "file:///home/rodrigomoreira/Rosamo_3/map_assets/marker-shadow.png"
         });
 
-        var map = L.map('map').setView([41.1579, -8.6291], 16);
+        var defaultLat = 48.137154;
+        var defaultLon = 11.576124;
+
+        var map = L.map("map").setView([defaultLat, defaultLon], 16);
 
         L.tileLayer(
-            'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+            "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
             {
                 maxZoom: 19,
-                attribution: 'Tiles © Esri'
+                attribution: "Tiles © Esri"
             }
         ).addTo(map);
+
+        var robotIcon = L.icon({
+            iconUrl: "file:///home/rodrigomoreira/Rosamo_3/map_assets/robot.png",
+            iconSize: [36, 36],
+            iconAnchor: [18, 18],
+            popupAnchor: [0, -18]
+        });
+
+        var treeIcon = L.icon({
+            iconUrl: "file:///home/rodrigomoreira/Rosamo_3/map_assets/tree.png",
+            iconSize: [32, 32],
+            iconAnchor: [16, 32],
+            popupAnchor: [0, -32]
+        });
+
+        var robotMarker = L.marker([defaultLat, defaultLon], {
+            icon: robotIcon,
+            title: "Robot"
+        }).addTo(map);
+
+        robotMarker.bindPopup(
+            "Robot<br>" +
+            "Waiting for GPS..."
+        );
+
+        var operatorMarker = L.marker([41.1585, -8.6285], {
+            title: "Operator"
+        }).addTo(map);
+
+        operatorMarker.bindPopup("Operator");
+
+        var laptopMarker = null;
+        var treeMarkers = [];
 
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -49,11 +86,19 @@
 
                     console.log("Laptop location:", lat, lon);
 
-                    // Add a marker for your laptop
-                    L.marker([lat, lon], { title: "You" }).addTo(map);
+                    laptopMarker = L.marker([lat, lon], {
+                        title: "You"
+                    }).addTo(map);
 
-                    // Center map on your location
-                    map.setView([lat, lon], 16);
+                    laptopMarker.bindPopup(
+                        "You<br>" +
+                        "Lat: " + lat.toFixed(6) + "<br>" +
+                        "Lon: " + lon.toFixed(6)
+                    );
+
+                    // Do not center on the laptop location.
+                    // The map will center on the robot from Python after GPS is received.
+                    // map.setView([lat, lon], 16);
                 },
                 function(err) {
                     console.log("Geolocation error:", err);
@@ -63,24 +108,104 @@
             console.log("Geolocation not supported");
         }
 
-        var robotMarker = L.marker([41.1579, -8.6291]).addTo(map);
-        var operatorMarker = L.marker([41.1585, -8.6285]).addTo(map);
-
         function updateRobot(lat, lon) {
+            console.log("updateRobot called with:", lat, lon);
+
+            lat = Number(lat);
+            lon = Number(lon);
+
+            if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+                console.log("Invalid robot GPS received:", lat, lon);
+                return;
+            }
+
+            if (lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+                console.log("Robot GPS outside valid range:", lat, lon);
+                return;
+            }
+
             robotMarker.setLatLng([lat, lon]);
+
+            robotMarker.bindPopup(
+                "Robot<br>" +
+                "Lat: " + lat.toFixed(6) + "<br>" +
+                "Lon: " + lon.toFixed(6)
+            );
+
+            console.log("Robot GPS updated:", lat, lon);
         }
 
         function updateOperator(lat, lon) {
+            lat = Number(lat);
+            lon = Number(lon);
+
+            if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+                console.log("Invalid operator GPS received:", lat, lon);
+                return;
+            }
+
             operatorMarker.setLatLng([lat, lon]);
+
+            operatorMarker.bindPopup(
+                "Operator<br>" +
+                "Lat: " + lat.toFixed(6) + "<br>" +
+                "Lon: " + lon.toFixed(6)
+            );
+
+            console.log("Operator GPS updated:", lat, lon);
         }
 
         function centerOnRobot() {
             map.setView(robotMarker.getLatLng(), 18);
         }
 
+        function addTreeMarker(lat, lon) {
+            lat = Number(lat);
+            lon = Number(lon);
+
+            if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+                console.log("Invalid tree GPS received:", lat, lon);
+                return;
+            }
+
+            if (lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+                console.log("Tree GPS outside valid range:", lat, lon);
+                return;
+            }
+
+            var marker = L.marker([lat, lon], {
+                icon: treeIcon,
+                title: "Tree"
+            }).addTo(map);
+
+            marker.bindPopup(
+                "Tree<br>" +
+                "Lat: " + lat.toFixed(6) + "<br>" +
+                "Lon: " + lon.toFixed(6)
+            );
+
+            treeMarkers.push(marker);
+
+            console.log("Tree marker added:", lat, lon);
+        }
+
+        function clearTreeMarkers() {
+            for (var i = 0; i < treeMarkers.length; i++) {
+                map.removeLayer(treeMarkers[i]);
+            }
+
+            treeMarkers = [];
+
+            console.log("All tree markers cleared");
+        }
+
+        window.map = map;
+        window.robotMarker = robotMarker;
         window.updateRobot = updateRobot;
         window.updateOperator = updateOperator;
         window.centerOnRobot = centerOnRobot;
+        window.addTreeMarker = addTreeMarker;
+        window.clearTreeMarkers = clearTreeMarkers;
 
         console.log("Map initialized");
     </script>

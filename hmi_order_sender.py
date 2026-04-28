@@ -85,6 +85,7 @@ class HMICommandClient:
     def start_stop_Lidar_Map_msg(self):
         if not self.i_Lmap:
             self.send("start_mapping")
+            self.send("start_image_mapping")
 
             self.send_empty(self.pubstartlivox, "/start_livox_driver")
             self.send_empty(self.pubstartpclscan, "/start_pointcloud_to_laserscan")
@@ -96,6 +97,7 @@ class HMICommandClient:
             self.i_Lmap = True
         else:
             self.send("stop_mapping")
+            self.send("stop_image_mapping")
 
             self.send_empty(self.pubstopekf, "/stop_ekf")
             self.send_empty(self.pubstopvicon, "/stop_vicon_bridge")

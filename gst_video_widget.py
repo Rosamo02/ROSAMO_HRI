@@ -3,7 +3,7 @@ gi.require_version("Gst", "1.0")
 from gi.repository import Gst
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QImage, QPixmap
+from PySide6.QtGui import QImage, QPixmap, QPainter, QPen, QColor, QBrush
 from PySide6.QtWidgets import QLabel
 
 
@@ -15,6 +15,20 @@ class GstVideoWidget(QLabel):
 
         self.setAlignment(Qt.AlignCenter)
         self.setText("Waiting for video...")
+        self.setScaledContents(False)
+
+        # Toolpath in CAMERA IMAGE pixel coordinates.
+        # Replace these example points with your real toolpath.
+        self.toolpath_points = [
+            (120, 300),
+            (180, 280),
+            (260, 260),
+            (340, 280),
+            (420, 320),
+            (500, 360),
+        ]
+
+        self.show_toolpath = True
 
         Gst.init(None)
 
@@ -52,15 +66,78 @@ class GstVideoWidget(QLabel):
                 height,
                 width * 3,
                 QImage.Format_RGB888
-            ).copy()   # copy before unmapping
+            ).copy()
         finally:
             buf.unmap(map_info)
 
         self.frame_ready.emit(image)
         return Gst.FlowReturn.OK
 
+    def draw_toolpath(self, image):
+        if not self.show_toolpath:
+            return image
+
+        if len(self.toolpath_points) < 2:
+            return image
+
+        painter = QPainter(image)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        line_width = 4
+        point_size = line_width
+        # Draw path line
+
+        path_pen = QPen(QColor(0, 0, 255))
+        path_pen.setWidth(line_width)
+        painter.setPen(path_pen)
+
+        for i in range(len(self.toolpath_points) - 1):
+            x1, y1 = self.toolpath_points[i]
+            x2, y2 = self.toolpath_points[i + 1]
+            painter.drawLine(x1, y1, x2, y2)
+
+        # Draw points on the path
+        painter.setPen(QPen(QColor(0, 0, 255), line_width))
+        painter.setBrush(QBrush(QColor(0, 0, 255)))
+
+        radius = point_size//2
+
+        for x, y in self.toolpath_points:
+            painter.drawEllipse(x - radius, y - radius, point_size, point_size)
+
+        painter.end()
+        return image
+
     def update_frame(self, image):
-        self.setPixmap(QPixmap.fromImage(image))
+        # Draw the fixed toolpath on the frame
+        image = self.draw_toolpath(image)
+
+        pixmap = QPixmap.fromImage(image)
+
+        # Scale to fit the QLabel while preserving aspect ratio
+        pixmap = pixmap.scaled(
+            self.size(),
+            Qt.AspectRatioMode.KeepAspectRatio,
+            Qt.TransformationMode.SmoothTransformation
+        )
+
+        self.setPixmap(pixmap)
+
+    def set_toolpath_pixels(self, points):
+        """
+        Update toolpath points.
+
+        points example:
+            [
+                (120, 300),
+                (180, 280),
+                (260, 260)
+            ]
+        """
+        self.toolpath_points = points
+
+    def toggle_toolpath(self, enabled):
+        self.show_toolpath = enabled
 
     def close(self):
         if self.pipeline is not None:

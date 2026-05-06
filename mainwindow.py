@@ -2,6 +2,7 @@
 import os
 import sys
 import threading
+import json
 
 import rclpy
 from rclpy.executors import SingleThreadedExecutor
@@ -25,6 +26,7 @@ from sdl_controller import SDLController
 from login_manager import LoginManager
 from map_view import setup_map
 from gps_position_node import GPSPositionNode
+from pathfinder import Pathfinder
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -162,6 +164,12 @@ class MainWindow(QMainWindow):
         self.ui.treeInput.setPlaceholderText("Tree position: lat, lon")
         self.ui.addTreeButton.clicked.connect(self.add_tree_marker_from_input)
         self.ui.treeInput.returnPressed.connect(self.add_tree_marker_from_input)
+        self.ui.calculatePathButton.clicked.connect(self.calculate_shortest_tree_path)
+
+        #Setup for calculating tree paths
+        self.tree_positions = []
+        self.current_robot_position = None
+        self.pathfinder = Pathfinder()
 
         # Alarm setup
         self.ui.tableWidget.setColumnCount(4)
@@ -239,7 +247,18 @@ class MainWindow(QMainWindow):
 
         print("before GstVideoWidget")
         self.video = GstVideoWidget(pipeline)
+
+        self.video.set_toolpath_pixels([
+            (120, 300),
+            (180, 280),
+            (260, 260),
+            (340, 280),
+            (420, 320),
+            (500, 360),
+        ])
+
         self.ui.videoLayout.addWidget(self.video)
+
         print("after GstVideoWidget")
 
     # UI Navigation
@@ -527,11 +546,22 @@ class MainWindow(QMainWindow):
             print("Invalid GPS coordinates.")
             return
 
+        new_tree = [lat, lon]
+        #Duplicate check
+        if new_tree in self.tree_positions:
+            print(f"Tree already exists: lat={lat}, lon={lon}")
+            return
+
+        self.tree_positions.append([lat, lon])
+
         js = f"addTreeMarker({lat}, {lon});"
         self.ui.mapView.page().runJavaScript(js)
+        self.ui.mapView.page().runJavaScript("clearTreePath();")
 
         self.ui.treeInput.clear()
+
         print(f"Added tree marker at lat={lat}, lon={lon}")
+        print(f"Tree matrix: {self.tree_positions}")
 
     def on_map_loaded(self, ok):
         self.map_ready = ok
@@ -539,6 +569,8 @@ class MainWindow(QMainWindow):
 
     def update_robot_gps_on_map(self, lat, lon):
         print(f"Updating robot marker on map: lat={lat}, lon={lon}")
+
+        self.current_robot_position = [lat, lon]
 
         self.ui.mapView.page().runJavaScript(
             f"updateRobot({lat}, {lon});"
@@ -549,6 +581,37 @@ class MainWindow(QMainWindow):
                 f"map.setView([{lat}, {lon}], 18);"
             )
             self.has_centered_on_robot = True
+
+    def calculate_shortest_tree_path(self):
+        if self.current_robot_position is None:
+            print("Cannot calculate path: robot GPS position is not available yet.")
+            return
+
+        if not self.tree_positions:
+            print("Cannot calculate path: no tree positions stored.")
+            return
+
+        path, distance = self.pathfinder.shortest_path(
+            self.current_robot_position,
+            self.tree_positions
+        )
+
+        print("Optimal tree path:")
+        for index, tree in enumerate(path, start=1):
+            print(f"{index}: lat={tree[0]}, lon={tree[1]}")
+
+        print(f"Total estimated distance: {distance:.2f} meters")
+
+        # Draw from robot position to first tree, then tree to tree
+        path_points = [self.current_robot_position] + path
+
+        # Convert Python list into JavaScript array safely
+        js_path = json.dumps(path_points)
+
+        # Call the drawTreePath(points) function from map.html
+        self.ui.mapView.page().runJavaScript(f"drawTreePath({js_path});")
+
+        return path, distance
 
     def update_gps_label(self, text):
         self.ui.gpsLabel.setText(text)

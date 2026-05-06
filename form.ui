@@ -239,6 +239,19 @@ background-color: rgb(245, 194, 17);</string>
        </item>
       </layout>
      </widget>
+     <widget class="QPushButton" name="calculatePathButton">
+      <property name="geometry">
+       <rect>
+        <x>1550</x>
+        <y>290</y>
+        <width>94</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>PushButton</string>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="Login_pg">
      <property name="styleSheet">

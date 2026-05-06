@@ -12,6 +12,7 @@ class LocalProcessManager:
             print("hmi_command_receiver.py is already running")
             return False
 
+        #This command was developed for and by Rosamo, change for your local setup.
         cmd = (
             "source /opt/ros/jazzy/setup.bash && "
             "source ~/ros2_ws/install/setup.bash && "

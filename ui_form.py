@@ -114,6 +114,9 @@ class Ui_MainWindow(object):
 
         self.mapControlsLayout.addWidget(self.addTreeButton)
 
+        self.calculatePathButton = QPushButton(self.Map_pg)
+        self.calculatePathButton.setObjectName(u"calculatePathButton")
+        self.calculatePathButton.setGeometry(QRect(1550, 290, 94, 26))
         self.stackedWidget.addWidget(self.Map_pg)
         self.Login_pg = QWidget()
         self.Login_pg.setObjectName(u"Login_pg")
@@ -294,6 +297,7 @@ class Ui_MainWindow(object):
         self.gpsLabel.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.mapImageView.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.addTreeButton.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
+        self.calculatePathButton.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
         self.Login_Button.setText(QCoreApplication.translate("MainWindow", u"Login", None))
         self.loginLabel.setText(QCoreApplication.translate("MainWindow", u"User:", None))
         self.loginLabel_2.setText(QCoreApplication.translate("MainWindow", u"Password:", None))

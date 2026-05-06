@@ -16,6 +16,11 @@
             width: 100%;
             height: 100%;
         }
+
+        .path-arrow-icon {
+            background: transparent;
+            border: none;
+        }
     </style>
 </head>
 
@@ -32,6 +37,7 @@
             shadowUrl: "file:///home/rodrigomoreira/Rosamo_3/map_assets/marker-shadow.png"
         });
 
+        // Default to Munich city center :D
         var defaultLat = 48.137154;
         var defaultLon = 11.576124;
 
@@ -77,6 +83,9 @@
 
         var laptopMarker = null;
         var treeMarkers = [];
+
+        var treePathLine = null;
+        var treePathArrows = [];
 
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -196,7 +205,124 @@
 
             treeMarkers = [];
 
+            clearTreePath();
+
             console.log("All tree markers cleared");
+        }
+
+        function getBearing(lat1, lon1, lat2, lon2) {
+            lat1 = lat1 * Math.PI / 180;
+            lat2 = lat2 * Math.PI / 180;
+
+            var dLon = (lon2 - lon1) * Math.PI / 180;
+
+            var y = Math.sin(dLon) * Math.cos(lat2);
+            var x =
+                Math.cos(lat1) * Math.sin(lat2) -
+                Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+
+            var bearing = Math.atan2(y, x) * 180 / Math.PI;
+
+            return (bearing + 360) % 360;
+        }
+
+        function drawTreePath(points) {
+            console.log("drawTreePath called with:", points);
+
+            if (!Array.isArray(points) || points.length < 2) {
+                console.log("Not enough points to draw path");
+                return;
+            }
+
+            clearTreePath();
+
+            var validPoints = [];
+
+            for (var i = 0; i < points.length; i++) {
+                var lat = Number(points[i][0]);
+                var lon = Number(points[i][1]);
+
+                if (
+                    Number.isFinite(lat) &&
+                    Number.isFinite(lon) &&
+                    lat >= -90 &&
+                    lat <= 90 &&
+                    lon >= -180 &&
+                    lon <= 180
+                ) {
+                    validPoints.push([lat, lon]);
+                } else {
+                    console.log("Invalid path point skipped:", points[i]);
+                }
+            }
+
+            if (validPoints.length < 2) {
+                console.log("Not enough valid points to draw path");
+                return;
+            }
+
+            treePathLine = L.polyline(validPoints, {
+                color: "lime",
+                weight: 4,
+                opacity: 0.9
+            }).addTo(map);
+
+            for (var j = 0; j < validPoints.length - 1; j++) {
+                var start = validPoints[j];
+                var end = validPoints[j + 1];
+
+                var midLat = (start[0] + end[0]) / 2;
+                var midLon = (start[1] + end[1]) / 2;
+
+                var bearing = getBearing(
+                    start[0],
+                    start[1],
+                    end[0],
+                    end[1]
+                ) - 90; // Rotate 90 degrees to point along the path
+
+                var arrowIcon = L.divIcon({
+                    className: "path-arrow-icon",
+                    html:
+                        '<div style="' +
+                        'transform: rotate(' + bearing + 'deg);' +
+                        'font-size: 26px;' +
+                        'color: lime;' +
+                        'font-weight: bold;' +
+                        'text-shadow: 0 0 4px black;' +
+                        '">➤</div>',
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 15]
+                });
+
+                var arrowMarker = L.marker([midLat, midLon], {
+                    icon: arrowIcon,
+                    interactive: false
+                }).addTo(map);
+
+                treePathArrows.push(arrowMarker);
+            }
+
+            map.fitBounds(treePathLine.getBounds(), {
+                padding: [40, 40]
+            });
+
+            console.log("Tree path with arrows drawn:", validPoints);
+        }
+
+        function clearTreePath() {
+            if (treePathLine !== null) {
+                map.removeLayer(treePathLine);
+                treePathLine = null;
+            }
+
+            for (var i = 0; i < treePathArrows.length; i++) {
+                map.removeLayer(treePathArrows[i]);
+            }
+
+            treePathArrows = [];
+
+            console.log("Tree path cleared");
         }
 
         window.map = map;
@@ -206,6 +332,8 @@
         window.centerOnRobot = centerOnRobot;
         window.addTreeMarker = addTreeMarker;
         window.clearTreeMarkers = clearTreeMarkers;
+        window.drawTreePath = drawTreePath;
+        window.clearTreePath = clearTreePath;
 
         console.log("Map initialized");
     </script>

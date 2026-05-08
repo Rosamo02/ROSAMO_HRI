@@ -16,7 +16,7 @@ class LocalProcessManager:
         cmd = (
             "source /opt/ros/jazzy/setup.bash && "
             "source ~/ros2_ws/install/setup.bash && "
-            "python3 ~/Desktop/hmi_command_receiver.py"
+            "python3 ~/Rosamo_3/hmi_command_receiver.py"
         )
 
         self.hmi_receiver_proc = subprocess.Popen(

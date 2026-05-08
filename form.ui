@@ -28,20 +28,20 @@ background-color: rgb(0, 0, 0);</string>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true"/>
+     <string notr="true">background-color: rgb(255, 255, 255);</string>
     </property>
     <widget class="QWidget" name="Main_pg">
      <property name="styleSheet">
       <string notr="true">background-color: rgb(255, 255, 255);
-background-color: rgb(255, 163, 72);</string>
+</string>
      </property>
      <widget class="QLabel" name="videoLabel">
       <property name="geometry">
        <rect>
-        <x>1230</x>
-        <y>50</y>
-        <width>571</width>
-        <height>371</height>
+        <x>1750</x>
+        <y>70</y>
+        <width>151</width>
+        <height>151</height>
        </rect>
       </property>
       <property name="text">
@@ -51,8 +51,8 @@ background-color: rgb(255, 163, 72);</string>
      <widget class="QPushButton" name="toggleInputButton">
       <property name="geometry">
        <rect>
-        <x>90</x>
-        <y>730</y>
+        <x>1270</x>
+        <y>850</y>
         <width>191</width>
         <height>21</height>
        </rect>
@@ -79,8 +79,8 @@ background-color: rgb(245, 194, 17);</string>
      <widget class="QSlider" name="powerSlider">
       <property name="geometry">
        <rect>
-        <x>90</x>
-        <y>710</y>
+        <x>1270</x>
+        <y>870</y>
         <width>191</width>
         <height>16</height>
        </rect>
@@ -97,32 +97,32 @@ background-color: rgb(245, 194, 17);</string>
        <rect>
         <x>100</x>
         <y>30</y>
-        <width>151</width>
+        <width>191</width>
         <height>20</height>
        </rect>
       </property>
       <property name="text">
-       <string>Turn On BackCamera</string>
+       <string>Turn On CSI Camera</string>
       </property>
      </widget>
      <widget class="QLabel" name="slamMapView">
       <property name="geometry">
        <rect>
-        <x>1230</x>
-        <y>440</y>
-        <width>331</width>
-        <height>331</height>
+        <x>1570</x>
+        <y>810</y>
+        <width>51</width>
+        <height>20</height>
        </rect>
       </property>
       <property name="text">
-       <string>TextLabel</string>
+       <string/>
       </property>
      </widget>
      <widget class="QPushButton" name="mapToggler">
       <property name="geometry">
        <rect>
         <x>1230</x>
-        <y>780</y>
+        <y>400</y>
         <width>91</width>
         <height>21</height>
        </rect>
@@ -137,24 +137,27 @@ background-color: rgb(245, 194, 17);</string>
      <widget class="QPushButton" name="maincameraToggler">
       <property name="geometry">
        <rect>
-        <x>1230</x>
-        <y>20</y>
-        <width>161</width>
+        <x>1720</x>
+        <y>30</y>
+        <width>201</width>
         <height>26</height>
        </rect>
       </property>
       <property name="text">
-       <string>Turn on Front Camera</string>
+       <string>Turn On RealSense Camera</string>
       </property>
      </widget>
      <widget class="QWidget" name="Velocimeter" native="true">
       <property name="geometry">
        <rect>
-        <x>360</x>
+        <x>390</x>
         <y>660</y>
-        <width>361</width>
-        <height>131</height>
+        <width>391</width>
+        <height>221</height>
        </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(0, 0, 0);</string>
       </property>
       <widget class="QLabel" name="linearspeedLabel">
        <property name="geometry">
@@ -186,16 +189,63 @@ background-color: rgb(245, 194, 17);</string>
      <widget class="QLabel" name="mapImageView">
       <property name="geometry">
        <rect>
-        <x>1580</x>
-        <y>410</y>
+        <x>1230</x>
+        <y>440</y>
         <width>331</width>
         <height>331</height>
        </rect>
       </property>
       <property name="text">
-       <string>TextLabel</string>
+       <string/>
       </property>
      </widget>
+     <widget class="QWidget" name="compassLayout" native="true">
+      <property name="geometry">
+       <rect>
+        <x>100</x>
+        <y>660</y>
+        <width>281</width>
+        <height>221</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="secondaryCameraToggler">
+      <property name="geometry">
+       <rect>
+        <x>1240</x>
+        <y>20</y>
+        <width>191</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Turn On Back CSI Camera</string>
+      </property>
+     </widget>
+     <widget class="QWidget" name="verticalLayoutWidget_3">
+      <property name="geometry">
+       <rect>
+        <x>1240</x>
+        <y>50</y>
+        <width>411</width>
+        <height>301</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="secondaryVideoLayout"/>
+     </widget>
+     <zorder>slamMapView</zorder>
+     <zorder>videoLabel</zorder>
+     <zorder>toggleInputButton</zorder>
+     <zorder>verticalLayoutWidget</zorder>
+     <zorder>powerSlider</zorder>
+     <zorder>screenToggler</zorder>
+     <zorder>mapToggler</zorder>
+     <zorder>maincameraToggler</zorder>
+     <zorder>Velocimeter</zorder>
+     <zorder>mapImageView</zorder>
+     <zorder>compassLayout</zorder>
+     <zorder>secondaryCameraToggler</zorder>
+     <zorder>verticalLayoutWidget_3</zorder>
     </widget>
     <widget class="QWidget" name="Main_2_pg">
      <property name="styleSheet">
@@ -474,7 +524,7 @@ Receiver</string>
       <x>0</x>
       <y>80</y>
       <width>81</width>
-      <height>961</height>
+      <height>971</height>
      </rect>
     </property>
     <widget class="QPushButton" name="Home_Button">

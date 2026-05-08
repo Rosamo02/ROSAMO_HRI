@@ -45,6 +45,9 @@ class HMICommandClient:
         self.pubstartbridge = node.create_publisher(Empty, "/start_px4_odom_bridge", qos_best_effort)
         self.pubstopbridge = node.create_publisher(Empty, "/stop_px4_odom_bridge", qos_best_effort)
 
+        self.pubstartslamtoolbox = node.create_publisher(Empty, "/start_slam_toolbox", qos_best_effort)
+        self.pubstopslamtoolbox = node.create_publisher(Empty, "/stop_slam_toolbox", qos_best_effort)
+
         self.screen_button = screen_button
         self.apriltag_button = apriltag_button
 
@@ -57,11 +60,11 @@ class HMICommandClient:
         self.i_camera = False
         self.i_front_camera = False
 
-        if self.screen_button is not None:
-            self.screen_button.setText("Turn On Back Camera")
+        #if self.screen_button is not None:
+        #    self.screen_button.setText("Turn On Back Camera")
 
-        if self.apriltag_button is not None:
-            self.apriltag_button.setText("Turn On Back Camera")
+        #if self.apriltag_button is not None:
+        #    self.apriltag_button.setText("Turn On Back Camera")
 
     def send(self, command: str):
         msg = String()
@@ -93,6 +96,7 @@ class HMICommandClient:
             self.send_empty(self.pubstartvicon, "/start_vicon_bridge")
             self.send_empty(self.pubstartekf, "/start_ekf")
             self.send_empty(self.pubstartstatictf, "/start_static_tf_livox")
+            self.send_empty(self.pubstartslamtoolbox, "/start_slam_toolbox")
 
             self.i_Lmap = True
         else:
@@ -105,6 +109,7 @@ class HMICommandClient:
             self.send_empty(self.pubstopbridge, "/stop_px4_odom_bridge")
             self.send_empty(self.pubstoplivox, "/stop_livox_driver")
             self.send_empty(self.pubstopstatictf, "/stop_static_tf_livox")
+            self.send_empty(self.pubstopslamtoolbox, "/stop_slam_toolbox")
 
             self.i_Lmap = False
 
@@ -132,26 +137,26 @@ class HMICommandClient:
             self.send("stop_ros2router")
             self.i_router = False
 
-    def start_stop_back_camera(self):
+    def start_stop_front_camera(self):
         if not self.i_camera:
             self.send_empty(self.pubstartcamera, "/start_camera_stream")
             self.i_camera = True
             if self.screen_button is not None:
-                self.screen_button.setText("Turn Off Back Camera")
+                self.screen_button.setText("Turn Off CSI Camera")
         else:
             self.send_empty(self.pubstopcamera, "/stop_camera_stream")
             self.i_camera = False
             if self.screen_button is not None:
-                self.screen_button.setText("Turn On Back Camera")
+                self.screen_button.setText("Turn On CSI Camera")
 
-    def start_stop_front_camera(self):
+    def start_stop_back_camera(self):
         if not self.i_front_camera:
             self.send_empty(self.pubstartcamera_front, "/start_station_detection_APRILTAG")
             self.i_front_camera = True
             if self.apriltag_button is not None:
-                self.apriltag_button.setText("Turn Off Back Camera")
+                self.apriltag_button.setText("Turn Off RealSense Camera")
         else:
             self.send_empty(self.pubstopcamera_front, "/stop_station_detection_APRILTAG")
             self.i_front_camera = False
             if self.apriltag_button is not None:
-                self.apriltag_button.setText("Turn On Back Camera")
+                self.apriltag_button.setText("Turn On RealSense Camera")

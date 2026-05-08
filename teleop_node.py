@@ -10,8 +10,9 @@ class TeleopNode(Node):
         self.pub = self.create_publisher(Twist, '/cmd_vel', 20)
         print("TeleopNode: after create_publisher")
 
-    def send_cmd(self, linear, angular):
+    def send_cmd(self, linear, angular, tool):
         msg = Twist()
         msg.linear.x = linear
         msg.angular.z = angular
+        msg.linear.z = tool
         self.pub.publish(msg)

@@ -19,14 +19,7 @@ class GstVideoWidget(QLabel):
 
         # Toolpath in CAMERA IMAGE pixel coordinates.
         # Replace these example points with your real toolpath.
-        self.toolpath_points = [
-            (120, 300),
-            (180, 280),
-            (260, 260),
-            (340, 280),
-            (420, 320),
-            (500, 360),
-        ]
+        self.toolpath_points = []
 
         self.show_toolpath = True
 
@@ -102,14 +95,18 @@ class GstVideoWidget(QLabel):
 
         radius = point_size//2
 
-        for x, y in self.toolpath_points:
-            painter.drawEllipse(x - radius, y - radius, point_size, point_size)
+        #for x, y in self.toolpath_points:
+        #    painter.drawEllipse(x - radius, y - radius, point_size, point_size)
 
         painter.end()
         return image
 
     def update_frame(self, image):
-        # Draw the fixed toolpath on the frame
+
+        #FLip the image (horizontally, vertically)
+        image = image.mirrored(True,True)
+
+        # Draw the fixed toolpath on the frame        
         image = self.draw_toolpath(image)
 
         pixmap = QPixmap.fromImage(image)
@@ -124,16 +121,6 @@ class GstVideoWidget(QLabel):
         self.setPixmap(pixmap)
 
     def set_toolpath_pixels(self, points):
-        """
-        Update toolpath points.
-
-        points example:
-            [
-                (120, 300),
-                (180, 280),
-                (260, 260)
-            ]
-        """
         self.toolpath_points = points
 
     def toggle_toolpath(self, enabled):

@@ -7,7 +7,14 @@ import json
 import rclpy
 from rclpy.executors import SingleThreadedExecutor
 
-from PySide6.QtWidgets import QMainWindow, QTableWidgetItem, QLineEdit, QPushButton, QHBoxLayout
+from PySide6.QtWidgets import (
+    QMainWindow,
+    QTableWidgetItem,
+    QLineEdit,
+    QPushButton,
+    QHBoxLayout,
+    QVBoxLayout
+)
 from PySide6.QtGui import QKeyEvent, QPixmap, QTransform
 from PySide6.QtCore import Qt, QTimer, QTime
 
@@ -27,6 +34,8 @@ from login_manager import LoginManager
 from map_view import setup_map
 from gps_position_node import GPSPositionNode
 from pathfinder import Pathfinder
+from compass_widget import CompassWidget
+from heading_node import HeadingNode
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -35,6 +44,28 @@ class MainWindow(QMainWindow):
         # UI setup
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+
+        # compass builder
+        self.compass_widget = CompassWidget(self)
+
+        self.compass_layout = QVBoxLayout(self.ui.compassLayout)
+        self.compass_layout.setContentsMargins(0, 0, 0, 0)
+        self.compass_layout.addWidget(self.compass_widget)
+
+        # Setup for calculating tree paths
+        self.tree_positions = []
+        self.current_robot_position = None
+        self.current_robot_heading = None
+
+        # Active path guidance
+        self.current_tree_path = []
+        self.next_tree_index = 0
+        self.tree_reached_distance_m = 3.0
+
+        self.pathfinder = Pathfinder()
+
+        # fake data for debugging
+        #self.compass_widget.set_target(45.0, 12.5, 48.252314, 11.604918)
 
         print("checkpoint 1")
         self.ui.passwordField.setEchoMode(QLineEdit.EchoMode.Password)
@@ -112,7 +143,7 @@ class MainWindow(QMainWindow):
         print("before MapNode")
         self.map_node = MapNode()
         print("after MapNode")
-        self.map_node.bridge.map_updated.connect(self.update_map_view)
+        #self.map_node.bridge.map_updated.connect(self.update_map_view)
         self.map_node.bridge.map_image_updated.connect(self.update_map_image_view)
 
         print("before GPSPositionNode")
@@ -120,6 +151,12 @@ class MainWindow(QMainWindow):
         print("after GPSPositionNode")
         self.gps_position_node.signals.gps_updated.connect(self.update_robot_gps_on_map)
         self.has_centered_on_robot = False
+
+        print("before HeadingNode")
+        self.heading_node = HeadingNode()
+        print("after HeadingNode")
+        self.heading_node.signals.heading_updated.connect(self.update_robot_heading)
+
         print("checkpoint 12")
 
         # ROS executor
@@ -129,6 +166,7 @@ class MainWindow(QMainWindow):
         self.executor.add_node(self.image_node)
         self.executor.add_node(self.map_node)
         self.executor.add_node(self.gps_position_node)
+        self.executor.add_node(self.heading_node)
         print("checkpoint 13")
 
         self.ros_thread = threading.Thread(target=self.executor.spin, daemon=True)
@@ -140,10 +178,10 @@ class MainWindow(QMainWindow):
         self.ui.armButton.clicked.connect(self.command_client.start_stop_arming)
         print("checkpoint 15")
 
-        self.ui.screenToggler.clicked.connect(self.command_client.start_stop_back_camera)
+        self.ui.screenToggler.clicked.connect(self.command_client.start_stop_front_camera)
         self.ui.mapToggler.clicked.connect(self.command_client.start_stop_Lidar_Map_msg)
         self.ui.routerToggler.clicked.connect(self.command_client.start_stop_ros2router_msg)
-        self.ui.maincameraToggler.clicked.connect(self.command_client.start_stop_front_camera)
+        self.ui.maincameraToggler.clicked.connect(self.command_client.start_stop_back_camera)
 
         self.current_mode = "keyboard"
         self.ui.toggleInputButton.clicked.connect(self.on_toggleInputButton_clicked)
@@ -165,11 +203,6 @@ class MainWindow(QMainWindow):
         self.ui.addTreeButton.clicked.connect(self.add_tree_marker_from_input)
         self.ui.treeInput.returnPressed.connect(self.add_tree_marker_from_input)
         self.ui.calculatePathButton.clicked.connect(self.calculate_shortest_tree_path)
-
-        #Setup for calculating tree paths
-        self.tree_positions = []
-        self.current_robot_position = None
-        self.pathfinder = Pathfinder()
 
         # Alarm setup
         self.ui.tableWidget.setColumnCount(4)
@@ -198,9 +231,11 @@ class MainWindow(QMainWindow):
             "This is the initial alarm that pops off when the HMI is started",
             AlarmSeverity.WARNING
         )
+
         print("checkpoint 24")
 
         # Battery node signals
+        #combine update time left and battery ui later, stupid logic otherwise
         self.battery_node.signals.battery_updated.connect(self.update_battery_ui)
         self.battery_node.signals.time_left_updated.connect(self.update_time_left_ui)
         self.battery_node.signals.arming_updated.connect(self.update_arming_ui)
@@ -236,7 +271,7 @@ class MainWindow(QMainWindow):
         Gst.init(None)
         print("after Gst.init")
 
-        pipeline = (
+        pipeline_cam0 = (
             'udpsrc address=:: port=5000 '
             'caps="application/x-rtp,media=video,encoding-name=H264,payload=96,clock-rate=90000" ! '
             'rtpjitterbuffer latency=50 drop-on-latency=true ! '
@@ -245,19 +280,38 @@ class MainWindow(QMainWindow):
             'appsink name=appsink emit-signals=true max-buffers=1 drop=true sync=false'
         )
 
-        print("before GstVideoWidget")
-        self.video = GstVideoWidget(pipeline)
+        pipeline_cam1 = (
+            'udpsrc address=:: port=5001 '
+            'caps="application/x-rtp,media=video,encoding-name=H264,payload=96,clock-rate=90000" ! '
+            'rtpjitterbuffer latency=50 drop-on-latency=true ! '
+            'rtph264depay ! h264parse ! avdec_h264 ! '
+            'videoconvert ! video/x-raw,format=RGB ! '
+            'appsink name=appsink emit-signals=true max-buffers=1 drop=true sync=false'
+        )
 
-        self.video.set_toolpath_pixels([
-            (120, 300),
-            (180, 280),
-            (260, 260),
-            (340, 280),
-            (420, 320),
-            (500, 360),
+        print("before GstVideoWidget")
+
+        self.primary_camera_widget = GstVideoWidget(pipeline_cam0)
+        self.secondary_camera_widget = GstVideoWidget(pipeline_cam1)
+
+        self.primary_camera_widget.set_toolpath_pixels([
+            (70, 400),
+            (130, 387),
+            (190, 375),
+            (250, 365),
+            (310, 357),
+            (370, 351),
+            (430, 349),
+            (490, 351),
+            (550, 357),
+            (610, 365),
+            (670, 377),
+            (730, 390),
+            (790, 403),
         ])
 
-        self.ui.videoLayout.addWidget(self.video)
+        self.ui.videoLayout.addWidget(self.primary_camera_widget)
+        self.ui.secondaryVideoLayout.addWidget(self.secondary_camera_widget)
 
         print("after GstVideoWidget")
 
@@ -366,6 +420,7 @@ class MainWindow(QMainWindow):
             key = " "
 
         self.teleop_controller.handle_key_press(key)
+        event.accept()#to prevent the propagation of events
 
 
     def keyReleaseEvent(self, event: QKeyEvent):
@@ -377,6 +432,7 @@ class MainWindow(QMainWindow):
             key = " "
 
         self.teleop_controller.handle_key_release(key)
+        event.accept()#to prevent the propagation of events
 
     def update_slider_scale(self, value):
         scale = value / 100.0
@@ -387,8 +443,8 @@ class MainWindow(QMainWindow):
     def on_toggleInputButton_clicked(self):
 
         self.alarm_manager.raise_alarm(
-            "TEST_2",
-            "This is a test alarm_2",
+            "Control Mode Switched",
+            "Control mode was switch, this warning serves for debugging",
             AlarmSeverity.WARNING
         )
         if self.current_mode == "keyboard":
@@ -403,9 +459,11 @@ class MainWindow(QMainWindow):
         #Change Status Bar
         self.ui.labelControlMode.setText(f"ControlMode: {self.current_mode}")
 
+        #Forces speed to 0 when changing controller mode
         self.teleop_controller.keys_down = {k: False for k in self.teleop_controller.keys_down}
         self.teleop_controller.linear = 0.0
         self.teleop_controller.angular = 0.0
+        self.teleop_controller.tool = 0.0
         self.teleop_controller.send_cmd()
 
 
@@ -552,7 +610,7 @@ class MainWindow(QMainWindow):
             print(f"Tree already exists: lat={lat}, lon={lon}")
             return
 
-        self.tree_positions.append([lat, lon])
+        self.tree_positions.append(new_tree)
 
         js = f"addTreeMarker({lat}, {lon});"
         self.ui.mapView.page().runJavaScript(js)
@@ -568,7 +626,6 @@ class MainWindow(QMainWindow):
         print(f"Map loaded: {ok}")
 
     def update_robot_gps_on_map(self, lat, lon):
-        print(f"Updating robot marker on map: lat={lat}, lon={lon}")
 
         self.current_robot_position = [lat, lon]
 
@@ -582,6 +639,8 @@ class MainWindow(QMainWindow):
             )
             self.has_centered_on_robot = True
 
+        self.update_next_tree_guidance()
+
     def calculate_shortest_tree_path(self):
         if self.current_robot_position is None:
             print("Cannot calculate path: robot GPS position is not available yet.")
@@ -592,13 +651,17 @@ class MainWindow(QMainWindow):
             return
 
         path, distance = self.pathfinder.shortest_path(
-            self.current_robot_position,
-            self.tree_positions
+                self.current_robot_position,
+                self.tree_positions
         )
+
+        # Store active path for compass guidance
+        self.current_tree_path = path
+        self.next_tree_index = 0
 
         print("Optimal tree path:")
         for index, tree in enumerate(path, start=1):
-            print(f"{index}: lat={tree[0]}, lon={tree[1]}")
+                print(f"{index}: lat={tree[0]}, lon={tree[1]}")
 
         print(f"Total estimated distance: {distance:.2f} meters")
 
@@ -611,11 +674,98 @@ class MainWindow(QMainWindow):
         # Call the drawTreePath(points) function from map.html
         self.ui.mapView.page().runJavaScript(f"drawTreePath({js_path});")
 
+        # Update compass after path is stored
+        self.update_next_tree_guidance()
+
         return path, distance
 
     def update_gps_label(self, text):
         self.ui.gpsLabel.setText(text)
 
+    def update_robot_heading(self, heading_deg):
+        self.current_robot_heading = heading_deg
+        self.update_next_tree_guidance()
+
+    def update_next_tree_guidance(self):
+        if self.current_robot_position is None:
+            return
+
+        if self.current_robot_heading is None:
+            return
+
+        if not self.current_tree_path:
+            self.compass_widget.clear_target()
+            return
+
+        if self.next_tree_index >= len(self.current_tree_path):
+            print("All trees reached.")
+            self.compass_widget.clear_target()
+            return
+
+        robot_lat, robot_lon = self.current_robot_position
+        tree_lat, tree_lon = self.current_tree_path[self.next_tree_index]
+
+        distance = self.pathfinder.haversine_distance(
+            robot_lat,
+            robot_lon,
+            tree_lat,
+            tree_lon
+        )
+
+        bearing_to_tree = self.pathfinder.bearing_degrees(
+            robot_lat,
+            robot_lon,
+            tree_lat,
+            tree_lon
+        )
+
+        if distance <= self.tree_reached_distance_m:
+            print(
+                f"Reached tree {self.next_tree_index + 1}: "
+                f"lat={tree_lat}, lon={tree_lon}"
+            )
+
+            self.next_tree_index += 1
+
+            if self.next_tree_index >= len(self.current_tree_path):
+                print("All trees reached.")
+                self.compass_widget.clear_target()
+                return
+
+            tree_lat, tree_lon = self.current_tree_path[self.next_tree_index]
+
+            distance = self.pathfinder.haversine_distance(
+                robot_lat,
+                robot_lon,
+                tree_lat,
+                tree_lon
+            )
+
+            bearing_to_tree = self.pathfinder.bearing_degrees(
+                robot_lat,
+                robot_lon,
+                tree_lat,
+                tree_lon
+             )
+
+        relative_bearing = (
+             bearing_to_tree - self.current_robot_heading + 360.0
+        ) % 360.0
+
+        print(
+            f"Next tree {self.next_tree_index + 1}: "
+            f"distance={distance:.2f} m, "
+            f"bearing_to_tree={bearing_to_tree:.1f}°, "
+            f"robot_heading={self.current_robot_heading:.1f}°, "
+            f"relative={relative_bearing:.1f}°"
+        )
+
+        self.compass_widget.set_target(
+            relative_bearing,
+            distance,
+            tree_lat,
+            tree_lon
+        )
 
     def closeEvent(self, event):
         if hasattr(self, "video") and self.video is not None:

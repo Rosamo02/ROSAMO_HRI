@@ -11,9 +11,17 @@ class TeleopController(QObject):
         self.speed_scale = 0.0
 
         # Track key states
-        self.keys_down = {"space": False, "w": False, "a": False, "s": False, "d": False}
+        self.keys_down = {
+            "space": False,
+            "w": False,
+            "a": False,
+            "s": False,
+            "d": False,
+            "c": False
+        }
         self.linear = 0.0
         self.angular = 0.0
+        self.tool = 0.0
 
     def handle_key_press(self, key):
         if key == " ":
@@ -38,9 +46,11 @@ class TeleopController(QObject):
         else:
             self.base_linear = 1.0 if self.keys_down["w"] else -1.0 if self.keys_down["s"] else 0.0
             self.base_angular = 1.0 if self.keys_down["a"] else -1.0 if self.keys_down["d"] else 0.0
+            self.base_tool = 1.0 if self.keys_down["c"] else 0.0
 
             self.angular = self.base_angular * self.speed_scale
             self.linear = self.base_linear * self.speed_scale
+            self.tool = self.base_tool * self.speed_scale
 
         self.send_cmd()
 
@@ -48,4 +58,5 @@ class TeleopController(QObject):
         msg = Twist()
         msg.linear.x = self.linear
         msg.angular.z = self.angular
+        msg.linear.z = self.tool
         self.node.pub.publish(msg)

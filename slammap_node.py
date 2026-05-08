@@ -26,12 +26,12 @@ class MapNode(Node):
             depth=10
         )
 
-        self.map_subscription = self.create_subscription(
-            OccupancyGrid,
-            "/map",
-            self.map_callback,
-            map_qos
-        )
+        #self.map_subscription = self.create_subscription(
+        #    OccupancyGrid,
+        #    "/map",
+        #    self.map_callback,
+        #    map_qos
+        #)
 
         self.map_image_subscription = self.create_subscription(
             Image,

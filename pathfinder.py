@@ -37,12 +37,7 @@ class Pathfinder:
         current_lat, current_lon = start_position
 
         for tree_lat, tree_lon in path:
-            total_distance += self.haversine_distance(
-                current_lat,
-                current_lon,
-                tree_lat,
-                tree_lon
-            )
+            total_distance += self.haversine_distance(current_lat,current_lon,tree_lat,tree_lon)
             current_lat, current_lon = tree_lat, tree_lon
 
         return total_distance
@@ -70,3 +65,23 @@ class Pathfinder:
                 best_path = candidate_path
 
         return list(best_path), best_distance
+
+    @staticmethod
+    def bearing_degrees(lat1, lon1, lat2, lon2):
+        #Returns: 0   = North ,270 = West
+        lat1_rad = math.radians(lat1)
+        lat2_rad = math.radians(lat2)
+        dlon_rad = math.radians(lon2 - lon1)
+
+        y = math.sin(dlon_rad) * math.cos(lat2_rad)
+
+        x = (
+            math.cos(lat1_rad) * math.sin(lat2_rad)
+            - math.sin(lat1_rad)
+            * math.cos(lat2_rad)
+            * math.cos(dlon_rad)
+        )
+
+        bearing = math.degrees(math.atan2(y, x))
+
+        return (bearing + 360.0) % 360.0

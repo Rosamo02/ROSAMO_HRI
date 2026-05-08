@@ -68,12 +68,15 @@ class SDLController:
         teleop = self.main.teleop_controller
         value = axis_event.value / 32767.0
 
-        # Optional deadzone to reduce drift/noise
+        # Deadzone to reduce drift and false inputs , which have been a problem
         if abs(value) < 0.03:
             value = 0.0
 
         scaled_value = value * teleop.speed_scale
 
+        #if the joystick moves on the left controller axis x, angular takes the value of scaled,
+        #else if the joystick moves on the left controller axis y,
+        #then linear takes the value of scaled
         if axis_event.axis == sdl2.SDL_CONTROLLER_AXIS_LEFTX:
             teleop.angular = -scaled_value
         elif axis_event.axis == sdl2.SDL_CONTROLLER_AXIS_LEFTY:
@@ -95,7 +98,17 @@ class SDLController:
             if not pressed:
                 teleop.linear = 0.0
                 teleop.angular = 0.0
+                teleop.tool = 0.0
                 teleop.send_cmd()
+
+        elif button_event.button == sdl2.SDL_CONTROLLER_BUTTON_LEFTSHOULDER:
+            print("[LB] pressed:", pressed)
+
+            if pressed and self.rb_down:
+                teleop.tool = 1.0 * teleop.speed_scale
+            else:
+                teleop.tool = 0.0
+
 
     def publish_current_cmd(self):
         if self.main.current_mode != "controller":
@@ -109,4 +122,5 @@ class SDLController:
             #If the deadman trigger is off, it sends empty commands
             teleop.linear = 0.0
             teleop.angular = 0.0
+            teleop.tool = 0.0
             teleop.send_cmd()

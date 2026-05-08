@@ -2,7 +2,7 @@ from std_msgs.msg import String, Empty
 from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy, HistoryPolicy
 
 class HMICommandClient:
-    def __init__(self, node,screen_button=None,apriltag_button=None):
+    def __init__(self, node,screen_button=None,lq_screen_button=None,secondary_camera_button=None,apriltag_button=None):
 
         #Local publisher
         self.pub = node.create_publisher(String, "/hmi/command", 5)
@@ -23,6 +23,12 @@ class HMICommandClient:
 
         self.pubstartcamera = node.create_publisher(Empty, "/start_camera_stream", qos_best_effort)
         self.pubstopcamera = node.create_publisher(Empty, "/stop_camera_stream", qos_best_effort)
+
+        self.publqstartcamera = node.create_publisher(Empty, "/start_lq_camera_stream", qos_best_effort)
+        self.publqstopcamera = node.create_publisher(Empty, "/stop_lq_camera_stream", qos_best_effort)
+
+        self.pubsecondstartcamera = node.create_publisher(Empty, "/start_secondary_camera_stream", qos_best_effort)
+        self.pubsecondstopcamera = node.create_publisher(Empty, "/stop_secondary_camera_stream", qos_best_effort)
 
         self.pubstartcamera_front = node.create_publisher(Empty, "/start_station_detection_APRILTAG", qos_best_effort)
         self.pubstopcamera_front = node.create_publisher(Empty, "/stop_station_detection_APRILTAG", qos_best_effort)
@@ -48,8 +54,12 @@ class HMICommandClient:
         self.pubstartslamtoolbox = node.create_publisher(Empty, "/start_slam_toolbox", qos_best_effort)
         self.pubstopslamtoolbox = node.create_publisher(Empty, "/stop_slam_toolbox", qos_best_effort)
 
+
+        #store the buttons in the class
         self.screen_button = screen_button
+        self.lq_screen_button = lq_screen_button
         self.apriltag_button = apriltag_button
+        self.secondary_camera_button = secondary_camera_button
 
         #Starting booleans(Assumes that all features are turn off previously to the interface being used)
         self.i_debug = False
@@ -58,6 +68,7 @@ class HMICommandClient:
         self.i_off = False
         self.i_arm = False
         self.i_camera = False
+        self.i_second_camera = False
         self.i_front_camera = False
 
         #if self.screen_button is not None:
@@ -142,12 +153,41 @@ class HMICommandClient:
             self.send_empty(self.pubstartcamera, "/start_camera_stream")
             self.i_camera = True
             if self.screen_button is not None:
-                self.screen_button.setText("Turn Off CSI Camera")
+                self.lq_screen_button.setText("Turn On CSI Camera")
+                self.screen_button.setText("Turn On CSI Camera")
         else:
             self.send_empty(self.pubstopcamera, "/stop_camera_stream")
             self.i_camera = False
             if self.screen_button is not None:
+                self.lq_screen_button.setText("Turn On CSI Camera")
                 self.screen_button.setText("Turn On CSI Camera")
+
+
+    def start_stop_lq_front_camera(self):
+        if not self.i_camera:
+            self.send_empty(self.publqstartcamera, "/start_lq_camera_stream")
+            self.i_camera = True
+            if self.lq_screen_button is not None:
+                self.lq_screen_button.setText("Turn Off CSI Camera")
+                self.screen_button.setText("Turn Off CSI Camera")
+        else:
+            self.send_empty(self.publqstopcamera, "/stop_lq_camera_stream")
+            self.i_camera = False
+            if self.lq_screen_button is not None:
+                self.lq_screen_button.setText("Turn On CSI Camera")
+                self.screen_button.setText("Turn On CSI Camera")
+
+    def start_stop_second_camera(self):
+        if not self.i_second_camera:
+            self.send_empty(self.pubsecondstartcamera, "/start_secondary_camera_stream")
+            self.i_second_camera = True
+            if self.secondary_camera_button is not None:
+                self.secondary_camera_button.setText("Turn Off Back CSI Camera")
+        else:
+            self.send_empty(self.pubsecondstopcamera, "/stop_secondary_camera_stream")
+            self.i_second_camera = False
+            if self.secondary_camera_button is not None:
+                self.secondary_camera_button.setText("Turn On Back CSI Camera")
 
     def start_stop_back_camera(self):
         if not self.i_front_camera:

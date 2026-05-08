@@ -233,6 +233,19 @@ background-color: rgb(245, 194, 17);</string>
       </property>
       <layout class="QVBoxLayout" name="secondaryVideoLayout"/>
      </widget>
+     <widget class="QPushButton" name="screenToggler_2">
+      <property name="geometry">
+       <rect>
+        <x>340</x>
+        <y>30</y>
+        <width>191</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Turn On CSI Camera</string>
+      </property>
+     </widget>
      <zorder>slamMapView</zorder>
      <zorder>videoLabel</zorder>
      <zorder>toggleInputButton</zorder>
@@ -246,6 +259,7 @@ background-color: rgb(245, 194, 17);</string>
      <zorder>compassLayout</zorder>
      <zorder>secondaryCameraToggler</zorder>
      <zorder>verticalLayoutWidget_3</zorder>
+     <zorder>screenToggler_2</zorder>
     </widget>
     <widget class="QWidget" name="Main_2_pg">
      <property name="styleSheet">

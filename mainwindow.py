@@ -136,6 +136,8 @@ class MainWindow(QMainWindow):
         self.command_client = HMICommandClient(
             self.teleop_node,
             self.ui.screenToggler,
+            self.ui.screenToggler_2,
+            self.ui.secondaryCameraToggler,
             self.ui.maincameraToggler
         )
         print("after HMICommandClient")
@@ -179,6 +181,8 @@ class MainWindow(QMainWindow):
         print("checkpoint 15")
 
         self.ui.screenToggler.clicked.connect(self.command_client.start_stop_front_camera)
+        self.ui.screenToggler_2.clicked.connect(self.command_client.start_stop_lq_front_camera)
+        self.ui.secondaryCameraToggler.clicked.connect(self.command_client.start_stop_second_camera)
         self.ui.mapToggler.clicked.connect(self.command_client.start_stop_Lidar_Map_msg)
         self.ui.routerToggler.clicked.connect(self.command_client.start_stop_ros2router_msg)
         self.ui.maincameraToggler.clicked.connect(self.command_client.start_stop_back_camera)

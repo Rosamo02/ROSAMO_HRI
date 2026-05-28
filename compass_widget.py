@@ -15,6 +15,7 @@ class CompassWidget(QWidget):
         self.distance_m = None
         self.tree_lat = None
         self.tree_lon = None
+        self.heading_status_text = "Heading not available"
 
         self.setMinimumSize(180, 220)
 
@@ -88,15 +89,17 @@ class CompassWidget(QWidget):
                 12,
                 int(center_y + radius + 20),
                 width - 24,
-                height - int(center_y + radius + 25),
+                height - int(center_y + radius + 55),
                 Qt.AlignCenter,
                 text
             )
+
         else:
             painter.setPen(QColor("gray"))
             info_font = QFont()
             info_font.setPointSize(9)
             painter.setFont(info_font)
+
             painter.drawText(
                 12,
                 int(center_y + radius + 35),
@@ -105,6 +108,26 @@ class CompassWidget(QWidget):
                 Qt.AlignCenter,
                 "No active tree target"
             )
+
+        # Heading status text
+        status_font = QFont()
+        status_font.setPointSize(8)
+        status_font.setBold(True)
+        painter.setFont(status_font)
+
+        if self.heading_status_text == "Heading not good enough":
+            painter.setPen(QColor("orange"))
+        else:
+            painter.setPen(QColor("white"))
+
+        painter.drawText(
+            12,
+            height - 28,
+            width - 24,
+            20,
+            Qt.AlignCenter,
+            self.heading_status_text
+        )
 
     def _draw_arrow(self, painter, center, angle_deg, length, color):
 
@@ -146,3 +169,7 @@ class CompassWidget(QWidget):
 
         arrow_head = QPolygonF([tip, left, right])
         painter.drawPolygon(arrow_head)
+
+    def set_heading_status(self, text):
+        self.heading_status_text = text
+        self.update()

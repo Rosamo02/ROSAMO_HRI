@@ -48,23 +48,6 @@ background-color: rgb(0, 0, 0);</string>
        <string>TextLabel</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="toggleInputButton">
-      <property name="geometry">
-       <rect>
-        <x>1270</x>
-        <y>850</y>
-        <width>191</width>
-        <height>21</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(255, 255, 255);
-background-color: rgb(245, 194, 17);</string>
-      </property>
-      <property name="text">
-       <string>Toggle Keyboard/Controller</string>
-      </property>
-     </widget>
      <widget class="QWidget" name="verticalLayoutWidget">
       <property name="geometry">
        <rect>
@@ -75,22 +58,6 @@ background-color: rgb(245, 194, 17);</string>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="videoLayout"/>
-     </widget>
-     <widget class="QSlider" name="powerSlider">
-      <property name="geometry">
-       <rect>
-        <x>1270</x>
-        <y>870</y>
-        <width>191</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="maximum">
-       <number>100</number>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Orientation::Horizontal</enum>
-      </property>
      </widget>
      <widget class="QPushButton" name="screenToggler">
       <property name="geometry">
@@ -233,10 +200,26 @@ background-color: rgb(245, 194, 17);</string>
       </property>
       <layout class="QVBoxLayout" name="secondaryVideoLayout"/>
      </widget>
+     <zorder>maincameraToggler</zorder>
+     <zorder>slamMapView</zorder>
+     <zorder>videoLabel</zorder>
+     <zorder>verticalLayoutWidget</zorder>
+     <zorder>screenToggler</zorder>
+     <zorder>mapToggler</zorder>
+     <zorder>Velocimeter</zorder>
+     <zorder>mapImageView</zorder>
+     <zorder>compassLayout</zorder>
+     <zorder>secondaryCameraToggler</zorder>
+     <zorder>verticalLayoutWidget_3</zorder>
+    </widget>
+    <widget class="QWidget" name="Main_2_pg">
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(246, 211, 45);</string>
+     </property>
      <widget class="QPushButton" name="screenToggler_2">
       <property name="geometry">
        <rect>
-        <x>340</x>
+        <x>120</x>
         <y>30</y>
         <width>191</width>
         <height>20</height>
@@ -246,25 +229,17 @@ background-color: rgb(245, 194, 17);</string>
        <string>Turn On CSI Camera</string>
       </property>
      </widget>
-     <zorder>slamMapView</zorder>
-     <zorder>videoLabel</zorder>
-     <zorder>toggleInputButton</zorder>
-     <zorder>verticalLayoutWidget</zorder>
-     <zorder>powerSlider</zorder>
-     <zorder>screenToggler</zorder>
-     <zorder>mapToggler</zorder>
-     <zorder>maincameraToggler</zorder>
-     <zorder>Velocimeter</zorder>
-     <zorder>mapImageView</zorder>
-     <zorder>compassLayout</zorder>
-     <zorder>secondaryCameraToggler</zorder>
-     <zorder>verticalLayoutWidget_3</zorder>
-     <zorder>screenToggler_2</zorder>
-    </widget>
-    <widget class="QWidget" name="Main_2_pg">
-     <property name="styleSheet">
-      <string notr="true">background-color: rgb(246, 211, 45);</string>
-     </property>
+     <widget class="QWidget" name="verticalLayoutWidget_4">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>50</y>
+        <width>1121</width>
+        <height>591</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="videoLayout_lq"/>
+     </widget>
     </widget>
     <widget class="QWidget" name="Settings_pg"/>
     <widget class="QWidget" name="Map_pg">
@@ -484,6 +459,34 @@ Receiver</string>
        <rect>
         <x>280</x>
         <y>350</y>
+        <width>171</width>
+        <height>91</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="rtkToggler">
+      <property name="geometry">
+       <rect>
+        <x>470</x>
+        <y>10</y>
+        <width>111</width>
+        <height>111</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Turn
+On
+RTK</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="gpsrtkLabel">
+      <property name="geometry">
+       <rect>
+        <x>590</x>
+        <y>20</y>
         <width>171</width>
         <height>91</height>
        </rect>
@@ -774,6 +777,39 @@ Receiver</string>
      </property>
      <property name="text">
       <string>TextLabel</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="toggleInputButton">
+     <property name="geometry">
+      <rect>
+       <x>1030</x>
+       <y>10</y>
+       <width>191</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(255, 255, 255);
+background-color: rgb(245, 194, 17);</string>
+     </property>
+     <property name="text">
+      <string>Toggle Keyboard/Controller</string>
+     </property>
+    </widget>
+    <widget class="QSlider" name="powerSlider">
+     <property name="geometry">
+      <rect>
+       <x>1030</x>
+       <y>40</y>
+       <width>191</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="maximum">
+      <number>100</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
     </widget>
    </widget>

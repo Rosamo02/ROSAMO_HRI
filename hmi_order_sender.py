@@ -54,6 +54,8 @@ class HMICommandClient:
         self.pubstartslamtoolbox = node.create_publisher(Empty, "/start_slam_toolbox", qos_best_effort)
         self.pubstopslamtoolbox = node.create_publisher(Empty, "/stop_slam_toolbox", qos_best_effort)
 
+        self.pubstartrtk = node.create_publisher(Empty, "/start_rtk_ntrip", qos_best_effort)
+        self.pubstoprtk = node.create_publisher(Empty, "/stop_rtk_ntrip", qos_best_effort)
 
         #store the buttons in the class
         self.screen_button = screen_button
@@ -70,6 +72,7 @@ class HMICommandClient:
         self.i_camera = False
         self.i_second_camera = False
         self.i_front_camera = False
+        self.i_rtk = False
 
         #if self.screen_button is not None:
         #    self.screen_button.setText("Turn On Back Camera")
@@ -140,6 +143,16 @@ class HMICommandClient:
             self.send_empty(self.pubstoparm, "/stop_arming")
             self.i_arm = False
 
+
+    def start_stop_rtk(self):
+        if not self.i_rtk:
+            self.send_empty(self.pubstartrtk, "/start_rtk_ntrip")
+            self.i_rtk = True
+        else:
+            self.send_empty(self.pubstoprtk, "/stop_rtk_ntrip")
+            self.i_rtk = False
+
+
     def start_stop_ros2router_msg(self):
         if not self.i_router:
             self.send("start_ros2router")
@@ -153,8 +166,8 @@ class HMICommandClient:
             self.send_empty(self.pubstartcamera, "/start_camera_stream")
             self.i_camera = True
             if self.screen_button is not None:
-                self.lq_screen_button.setText("Turn On CSI Camera")
-                self.screen_button.setText("Turn On CSI Camera")
+                self.lq_screen_button.setText("Turn Off CSI Camera")
+                self.screen_button.setText("Turn Off CSI Camera")
         else:
             self.send_empty(self.pubstopcamera, "/stop_camera_stream")
             self.i_camera = False

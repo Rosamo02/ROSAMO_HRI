@@ -37,22 +37,22 @@ class HeadingNode(Node):
         print("HeadingNode subscribed to /fmu/out/vehicle_local_position_v1")
 
     def vehicle_local_position_callback(self, msg):
-        if not msg.heading_good_for_control:
-            #print("Heading not good for control yet")
-            return
-
         heading_rad = float(msg.heading)
 
         if not math.isfinite(heading_rad):
             print("Invalid heading: not finite")
+            self.signals.heading_label_message.emit("Heading not good enough")
             return
 
-        heading_deg = math.degrees(heading_rad)
+        heading_deg = math.degrees(heading_rad) % 360.0
 
-        # Normalize to 0-360 degrees
-        heading_deg = heading_deg % 360.0
-
+        # Always emit heading so the compass can still work for UI guidance
         self.signals.heading_updated.emit(heading_deg)
+
+        if not msg.heading_good_for_control:
+            self.signals.heading_label_message.emit("Heading not good enough")
+            return
+
         self.signals.heading_label_message.emit(
             f"Heading: {heading_deg:.1f}°"
         )

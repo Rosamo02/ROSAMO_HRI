@@ -10,6 +10,7 @@ from px4_msgs.msg import SensorGps
 class GPSPositionSignals(QObject):
     gps_updated = Signal(float, float)
     gps_label_message = Signal(str)
+    gps_rtk_message = Signal(str)
 
 
 class GPSPositionNode(Node):
@@ -34,8 +35,28 @@ class GPSPositionNode(Node):
 
         print("GPSPositionNode subscribed to /fmu/out/vehicle_gps_position")
 
+    def fix_type_to_text(self, fix_type):
+        fix_types = {
+                0: "No fix",
+                1: "No fix",
+                2: "2D fix",
+                3: "3D fix",
+                4: "DGPS / RTCM differential",
+                5: "RTK float",
+                6: "RTK fixed",
+                8: "Extrapolated",
+        }
+
+        return fix_types.get(fix_type, f"Unknown fix type {fix_type}")
+
     def vehicle_gps_position_callback(self, msg):
         print("GPS callback received")
+
+        fix_text = self.fix_type_to_text(msg.fix_type)
+
+        self.signals.gps_rtk_message.emit(
+            f"GPS Fix: {fix_text} ({msg.fix_type})"
+        )
 
         if msg.fix_type < 3:
             print(f"GPS fix not good enough: fix_type={msg.fix_type}")

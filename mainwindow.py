@@ -158,6 +158,7 @@ class MainWindow(QMainWindow):
         self.heading_node = HeadingNode()
         print("after HeadingNode")
         self.heading_node.signals.heading_updated.connect(self.update_robot_heading)
+        self.heading_node.signals.heading_label_message.connect(self.compass_widget.set_heading_status)
 
         print("checkpoint 12")
 
@@ -186,6 +187,7 @@ class MainWindow(QMainWindow):
         self.ui.mapToggler.clicked.connect(self.command_client.start_stop_Lidar_Map_msg)
         self.ui.routerToggler.clicked.connect(self.command_client.start_stop_ros2router_msg)
         self.ui.maincameraToggler.clicked.connect(self.command_client.start_stop_back_camera)
+        self.ui.rtkToggler.clicked.connect(self.command_client.start_stop_rtk)
 
         self.current_mode = "keyboard"
         self.ui.toggleInputButton.clicked.connect(self.on_toggleInputButton_clicked)
@@ -247,6 +249,7 @@ class MainWindow(QMainWindow):
         self.battery_node.signals.connection_updated.connect(self.update_connection_ui)
         self.battery_node.signals.odom_updated.connect(self.update_velocimeter_ui)
         self.gps_position_node.signals.gps_label_message.connect(self.update_gps_label)
+        self.gps_position_node.signals.gps_rtk_message.connect(self.update_gps_rtk_label)
         print("checkpoint 25")
 
         # Ping monitor
@@ -259,6 +262,9 @@ class MainWindow(QMainWindow):
 
         # Delay GStreamer setup until Qt event loop starts
         QTimer.singleShot(0, self.setup_gstreamer)
+        #Making certain parts invisible
+        self.ui.videoLabel.hide()
+        self.ui.maincameraToggler.hide()
 
         print("MainWindow initialized successfully.")
 
@@ -278,7 +284,16 @@ class MainWindow(QMainWindow):
         pipeline_cam0 = (
             'udpsrc address=:: port=5000 '
             'caps="application/x-rtp,media=video,encoding-name=H264,payload=96,clock-rate=90000" ! '
-            'rtpjitterbuffer latency=50 drop-on-latency=true ! '
+            'rtpjitterbuffer latency=25 drop-on-latency=true ! '
+            'rtph264depay ! h264parse ! avdec_h264 ! '
+            'videoconvert ! video/x-raw,format=RGB ! '
+            'appsink name=appsink emit-signals=true max-buffers=1 drop=true sync=false'
+        )
+
+        pipeline_cam0_lq = (
+            'udpsrc address=:: port=5002 '
+            'caps="application/x-rtp,media=video,encoding-name=H264,payload=96,clock-rate=90000" ! '
+            'rtpjitterbuffer latency=100 drop-on-latency=true ! '
             'rtph264depay ! h264parse ! avdec_h264 ! '
             'videoconvert ! video/x-raw,format=RGB ! '
             'appsink name=appsink emit-signals=true max-buffers=1 drop=true sync=false'
@@ -296,26 +311,83 @@ class MainWindow(QMainWindow):
         print("before GstVideoWidget")
 
         self.primary_camera_widget = GstVideoWidget(pipeline_cam0)
+        self.primary_camera_widget_lq = GstVideoWidget(pipeline_cam0_lq)
         self.secondary_camera_widget = GstVideoWidget(pipeline_cam1)
 
         self.primary_camera_widget.set_toolpath_pixels([
-            (70, 400),
-            (130, 387),
-            (190, 375),
-            (250, 365),
-            (310, 357),
-            (370, 351),
-            (430, 349),
-            (490, 351),
-            (550, 357),
-            (610, 365),
-            (670, 377),
-            (730, 390),
-            (790, 403),
+                (210, 420),
+                (250, 382),
+                (290, 348),
+                (330, 320),
+                (370, 300),
+                (410, 288),
+                (450, 284),
+                (490, 286),
+                (530, 296),
+                (570, 314),
+                (610, 338),
+                (650, 368),
+                (690, 402),
+                (730, 440),
+        ])
+
+        self.primary_camera_widget_lq.set_toolpath_pixels([
+                (210, 420),
+                (250, 382),
+                (290, 348),
+                (330, 320),
+                (370, 300),
+                (410, 288),
+                (450, 284),
+                (490, 286),
+                (530, 296),
+                (570, 314),
+                (610, 338),
+                (650, 368),
+                (690, 402),
+                (730, 440),
+        ])
+
+        self.secondary_camera_widget.set_toolpath_pixels([
+                (719, 407),  # 0°
+                (715, 465),  # 11.25°
+                (702, 522),  # 22.5°
+                (681, 574),  # 33.75°
+                (652, 620),  # 45°
+                (617, 657),  # 56.25°
+                (578, 685),  # 67.5°
+                (535, 702),  # 78.75°
+                (490, 707),  # 90°
+                (445, 702),  # 101.25°
+                (402, 685),  # 112.5°
+                (363, 657),  # 123.75°
+                (328, 620),  # 135°
+                (299, 574),  # 146.25°
+                (278, 522),  # 157.5°
+                (265, 465),  # 168.75°
+                (261, 407),  # 180°
+                (265, 349),  # 191.25°
+                (278, 293),  # 202.5°
+                (299, 240),  # 213.75°
+                (328, 195),  # 225°
+                (363, 157),  # 236.25°
+                (402, 130),  # 247.5°
+                (445, 113),  # 258.75°
+                (490, 108),  # 270°
+                (535, 113),  # 281.25°
+                (578, 130),  # 292.5°
+                (617, 157),  # 303.75°
+                (652, 195),  # 315°
+                (681, 240),  # 326.25°
+                (702, 293),  # 337.5°
+                (715, 349),  # 348.75°
+                (719, 407),  # 359.9°
         ])
 
         self.ui.videoLayout.addWidget(self.primary_camera_widget)
+        self.ui.videoLayout_lq.addWidget(self.primary_camera_widget_lq)
         self.ui.secondaryVideoLayout.addWidget(self.secondary_camera_widget)
+
 
         print("after GstVideoWidget")
 
@@ -685,6 +757,9 @@ class MainWindow(QMainWindow):
 
     def update_gps_label(self, text):
         self.ui.gpsLabel.setText(text)
+
+    def update_gps_rtk_label(self, text):
+        self.ui.gpsrtkLabel.setText(text)
 
     def update_robot_heading(self, heading_deg):
         self.current_robot_heading = heading_deg

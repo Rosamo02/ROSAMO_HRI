@@ -72,7 +72,7 @@ class SDLController:
         if abs(value) < 0.03:
             value = 0.0
 
-        scaled_value = value * teleop.speed_scale
+        scaled_value = value
 
         #if the joystick moves on the left controller axis x, angular takes the value of scaled,
         #else if the joystick moves on the left controller axis y,
@@ -81,8 +81,6 @@ class SDLController:
             teleop.angular = -scaled_value
         elif axis_event.axis == sdl2.SDL_CONTROLLER_AXIS_LEFTY:
             teleop.linear = -scaled_value
-
-        print(f"[CONTROLLER] linear={teleop.linear:.2f}, angular={teleop.angular:.2f}, scale={teleop.speed_scale:.2f}")
 
     def handle_button(self, button_event, pressed):
         if self.main.current_mode != "controller":
@@ -105,7 +103,7 @@ class SDLController:
             print("[LB] pressed:", pressed)
 
             if pressed and self.rb_down:
-                teleop.tool = 1.0 * teleop.speed_scale
+                teleop.tool = 1.0
             else:
                 teleop.tool = 0.0
 

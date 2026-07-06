@@ -7,5 +7,4 @@ class LoginManager:
         self.valid_password = "1234"
 
     def validate(self, username: str, password: str) -> bool:
-        """Return True if credentials are correct."""
-        return username == self.valid_username and password == self.valid_password
+        return username == self.valid_username and password == self.valid_password # if this condition is verified return True

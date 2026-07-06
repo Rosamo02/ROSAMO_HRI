@@ -36,6 +36,8 @@ from gps_position_node import GPSPositionNode
 from pathfinder import Pathfinder
 from compass_widget import CompassWidget
 from heading_node import HeadingNode
+from rosout_node import RosoutNode
+from gstream_setup import setup_gstreamer_window
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -47,10 +49,15 @@ class MainWindow(QMainWindow):
 
         # compass builder
         self.compass_widget = CompassWidget(self)
+        self.compass_widget_2 = CompassWidget(self)
 
         self.compass_layout = QVBoxLayout(self.ui.compassLayout)
         self.compass_layout.setContentsMargins(0, 0, 0, 0)
         self.compass_layout.addWidget(self.compass_widget)
+
+        self.compass_layout_2 = QVBoxLayout(self.ui.compassLayout_2)
+        self.compass_layout_2.setContentsMargins(0, 0, 0, 0)
+        self.compass_layout_2.addWidget(self.compass_widget_2)
 
         # Setup for calculating tree paths
         self.tree_positions = []
@@ -107,14 +114,14 @@ class MainWindow(QMainWindow):
             button.clicked.connect(lambda _, p=page, b=button: self.navigate(p, b))
         print("checkpoint 9")
 
-        self.switch_page(self.ui.Login_pg)
+        self.switch_page(self.ui.Login_pg)#Set initial page as login page
         print("checkpoint 10")
 
         self.ui.videoLabel.setText("Waiting for RealSense...")
         self.ui.videoLabel.setScaledContents(True)
         print("checkpoint 11")
 
-        # ROS nodes - create ONCE
+        # ROS nodes
         print("before TeleopNode")
         self.teleop_node = TeleopNode()
         print("after TeleopNode")
@@ -138,6 +145,7 @@ class MainWindow(QMainWindow):
             self.ui.screenToggler,
             self.ui.screenToggler_2,
             self.ui.secondaryCameraToggler,
+            self.ui.secondaryCameraToggler_2,
             self.ui.maincameraToggler
         )
         print("after HMICommandClient")
@@ -159,8 +167,12 @@ class MainWindow(QMainWindow):
         print("after HeadingNode")
         self.heading_node.signals.heading_updated.connect(self.update_robot_heading)
         self.heading_node.signals.heading_label_message.connect(self.compass_widget.set_heading_status)
+        self.heading_node.signals.heading_label_message.connect(self.compass_widget_2.set_heading_status)
 
-        print("checkpoint 12")
+        print("before RosoutNode")
+        self.rosout_node = RosoutNode()
+        print("after RosoutNode")
+        self.rosout_node.signals.log_received.connect(self.add_rosout_log)
 
         # ROS executor
         self.executor = SingleThreadedExecutor()
@@ -170,6 +182,7 @@ class MainWindow(QMainWindow):
         self.executor.add_node(self.map_node)
         self.executor.add_node(self.gps_position_node)
         self.executor.add_node(self.heading_node)
+        self.executor.add_node(self.rosout_node)
         print("checkpoint 13")
 
         self.ros_thread = threading.Thread(target=self.executor.spin, daemon=True)
@@ -184,6 +197,7 @@ class MainWindow(QMainWindow):
         self.ui.screenToggler.clicked.connect(self.command_client.start_stop_front_camera)
         self.ui.screenToggler_2.clicked.connect(self.command_client.start_stop_lq_front_camera)
         self.ui.secondaryCameraToggler.clicked.connect(self.command_client.start_stop_second_camera)
+        self.ui.secondaryCameraToggler_2.clicked.connect(self.command_client.start_stop_lq_second_camera)
         self.ui.mapToggler.clicked.connect(self.command_client.start_stop_Lidar_Map_msg)
         self.ui.routerToggler.clicked.connect(self.command_client.start_stop_ros2router_msg)
         self.ui.maincameraToggler.clicked.connect(self.command_client.start_stop_back_camera)
@@ -195,6 +209,7 @@ class MainWindow(QMainWindow):
         print("checkpoint 16")
 
         self.ui.powerSlider.valueChanged.connect(self.update_slider_scale)
+        self.ui.toolSlider.valueChanged.connect(self.update_tool_slider_scale)
         print("checkpoint 17")
 
         self.sdl = SDLController(self)
@@ -242,7 +257,7 @@ class MainWindow(QMainWindow):
 
         # Battery node signals
         #combine update time left and battery ui later, stupid logic otherwise
-        self.battery_node.signals.battery_updated.connect(self.update_battery_ui)
+        self.battery_node.signals.battery_updated.connect(self.update_battery_ui)#this means tthat when battery_updated is emited, "update_battery_ui" is automatically called
         self.battery_node.signals.time_left_updated.connect(self.update_time_left_ui)
         self.battery_node.signals.arming_updated.connect(self.update_arming_ui)
         self.battery_node.signals.offboard_updated.connect(self.update_offboard_ui)
@@ -254,148 +269,25 @@ class MainWindow(QMainWindow):
 
         # Ping monitor
         self.ui.labelPing.setText("Ping: -- ms")
-        self.ping_monitor = PingMonitor("Robot", 2000, self)
+        self.ping_monitor = PingMonitor("Robot", 2000, self)#Remember that the adress is "Robot" because of Husarnet, otherwise it would not work
         self.ping_monitor.ping_updated.connect(self.update_ping_ui)
         self.ping_monitor.ping_failed.connect(self.handle_ping_failure)
         self.ping_monitor.start()
         print("checkpoint 26")
 
         # Delay GStreamer setup until Qt event loop starts
-        QTimer.singleShot(0, self.setup_gstreamer)
+        QTimer.singleShot(0, lambda: setup_gstreamer_window(self))
         #Making certain parts invisible
         self.ui.videoLabel.hide()
         self.ui.maincameraToggler.hide()
 
         print("MainWindow initialized successfully.")
 
-
-
-    def setup_gstreamer(self):
-
-        import gi
-        gi.require_version("Gst", "1.0")
-        from gi.repository import Gst
-        from gst_video_widget import GstVideoWidget
-
-        print("before Gst.init")
-        Gst.init(None)
-        print("after Gst.init")
-
-        pipeline_cam0 = (
-            'udpsrc address=:: port=5000 '
-            'caps="application/x-rtp,media=video,encoding-name=H264,payload=96,clock-rate=90000" ! '
-            'rtpjitterbuffer latency=25 drop-on-latency=true ! '
-            'rtph264depay ! h264parse ! avdec_h264 ! '
-            'videoconvert ! video/x-raw,format=RGB ! '
-            'appsink name=appsink emit-signals=true max-buffers=1 drop=true sync=false'
-        )
-
-        pipeline_cam0_lq = (
-            'udpsrc address=:: port=5002 '
-            'caps="application/x-rtp,media=video,encoding-name=H264,payload=96,clock-rate=90000" ! '
-            'rtpjitterbuffer latency=100 drop-on-latency=true ! '
-            'rtph264depay ! h264parse ! avdec_h264 ! '
-            'videoconvert ! video/x-raw,format=RGB ! '
-            'appsink name=appsink emit-signals=true max-buffers=1 drop=true sync=false'
-        )
-
-        pipeline_cam1 = (
-            'udpsrc address=:: port=5001 '
-            'caps="application/x-rtp,media=video,encoding-name=H264,payload=96,clock-rate=90000" ! '
-            'rtpjitterbuffer latency=50 drop-on-latency=true ! '
-            'rtph264depay ! h264parse ! avdec_h264 ! '
-            'videoconvert ! video/x-raw,format=RGB ! '
-            'appsink name=appsink emit-signals=true max-buffers=1 drop=true sync=false'
-        )
-
-        print("before GstVideoWidget")
-
-        self.primary_camera_widget = GstVideoWidget(pipeline_cam0)
-        self.primary_camera_widget_lq = GstVideoWidget(pipeline_cam0_lq)
-        self.secondary_camera_widget = GstVideoWidget(pipeline_cam1)
-
-        self.primary_camera_widget.set_toolpath_pixels([
-                (210, 420),
-                (250, 382),
-                (290, 348),
-                (330, 320),
-                (370, 300),
-                (410, 288),
-                (450, 284),
-                (490, 286),
-                (530, 296),
-                (570, 314),
-                (610, 338),
-                (650, 368),
-                (690, 402),
-                (730, 440),
-        ])
-
-        self.primary_camera_widget_lq.set_toolpath_pixels([
-                (210, 420),
-                (250, 382),
-                (290, 348),
-                (330, 320),
-                (370, 300),
-                (410, 288),
-                (450, 284),
-                (490, 286),
-                (530, 296),
-                (570, 314),
-                (610, 338),
-                (650, 368),
-                (690, 402),
-                (730, 440),
-        ])
-
-        self.secondary_camera_widget.set_toolpath_pixels([
-                (719, 407),  # 0°
-                (715, 465),  # 11.25°
-                (702, 522),  # 22.5°
-                (681, 574),  # 33.75°
-                (652, 620),  # 45°
-                (617, 657),  # 56.25°
-                (578, 685),  # 67.5°
-                (535, 702),  # 78.75°
-                (490, 707),  # 90°
-                (445, 702),  # 101.25°
-                (402, 685),  # 112.5°
-                (363, 657),  # 123.75°
-                (328, 620),  # 135°
-                (299, 574),  # 146.25°
-                (278, 522),  # 157.5°
-                (265, 465),  # 168.75°
-                (261, 407),  # 180°
-                (265, 349),  # 191.25°
-                (278, 293),  # 202.5°
-                (299, 240),  # 213.75°
-                (328, 195),  # 225°
-                (363, 157),  # 236.25°
-                (402, 130),  # 247.5°
-                (445, 113),  # 258.75°
-                (490, 108),  # 270°
-                (535, 113),  # 281.25°
-                (578, 130),  # 292.5°
-                (617, 157),  # 303.75°
-                (652, 195),  # 315°
-                (681, 240),  # 326.25°
-                (702, 293),  # 337.5°
-                (715, 349),  # 348.75°
-                (719, 407),  # 359.9°
-        ])
-
-        self.ui.videoLayout.addWidget(self.primary_camera_widget)
-        self.ui.videoLayout_lq.addWidget(self.primary_camera_widget_lq)
-        self.ui.secondaryVideoLayout.addWidget(self.secondary_camera_widget)
-
-
-        print("after GstVideoWidget")
-
     # UI Navigation
     def switch_page(self, page):
         self.ui.stackedWidget.setCurrentWidget(page)
 
-    def navigate(self, page, button):
+    def navigate(self, page, button):#This function lets you switch between pages, and highlights which page is selected
         self.ui.stackedWidget.setCurrentWidget(page)
         # Reset styles
         for btn in self.nav_map.keys():
@@ -447,9 +339,10 @@ class MainWindow(QMainWindow):
         self.ui.labelTimeRemaingBattery.setText(f"Time left: {time_left}")
 
     def update_velocimeter_ui(self, odom_text):
-        self.ui.linearspeedLabel.setText(odom_text)
+        self.ui.linearspeedLabel.setText(odom_text)#This label needs to be repeated, tey are the same on different pages
+        self.ui.linearspeedLabel_2.setText(odom_text)
 
-    def update_arming_ui(self, status_text):
+    def update_arming_ui(self, status_text):#neither working
         self.ui.armLabel.setText(status_text)
         if status_text == "Armed":
             color = "green"
@@ -459,7 +352,7 @@ class MainWindow(QMainWindow):
             color = "gray"
         self.ui.armLabel.setStyleSheet(f"color: {color}; font-weight: bold;")
 
-    def update_offboard_ui(self, status_text):
+    def update_offboard_ui(self, status_text):#neither working
         self.ui.offboardLabel.setText(status_text)
         if status_text == "Offboard: On":
             color = "#2d89ef"
@@ -487,7 +380,7 @@ class MainWindow(QMainWindow):
         current_time = QTime.currentTime().toString("HH:mm:ss")
         self.ui.labelTime.setText(f"Time: {current_time}")
 
-    def keyPressEvent(self, event: QKeyEvent):
+    def keyPressEvent(self, event: QKeyEvent):#QT creator function
         if self.current_mode != "keyboard":
             return
 
@@ -496,7 +389,7 @@ class MainWindow(QMainWindow):
             key = " "
 
         self.teleop_controller.handle_key_press(key)
-        event.accept()#to prevent the propagation of events
+        event.accept()#to prevent the propagation of events(this should stop the event from spreading to other parts, not sure it`s working)
 
 
     def keyReleaseEvent(self, event: QKeyEvent):
@@ -512,15 +405,18 @@ class MainWindow(QMainWindow):
 
     def update_slider_scale(self, value):
         scale = value / 100.0
-        self.teleop_controller.speed_scale = scale
-        print(f"The scale is set to {scale}")
+        self.teleop_node.set_speed_scale(scale)
+
+    def update_tool_slider_scale(self, value):
+        scale = value / 100.0
+        self.teleop_node.set_tool_scale(scale)
 
     # Controller Mode Switching
     def on_toggleInputButton_clicked(self):
 
         self.alarm_manager.raise_alarm(
             "Control Mode Switched",
-            "Control mode was switch, this warning serves for debugging",
+            "Control mode was switched, this warning serves for debugging",
             AlarmSeverity.WARNING
         )
         if self.current_mode == "keyboard":
@@ -567,7 +463,7 @@ class MainWindow(QMainWindow):
     def handle_unacknowledged_change(self, has_unack):
         if has_unack:
             self.blink_timer.start(500)  # blink every 0.5 seconds
-        else:
+        else:#stops the unack, therefore stops blinking
             self.blink_timer.stop()
             self.blink_state = False
             pix = QPixmap("icons/greyicon.png").scaled(
@@ -613,28 +509,6 @@ class MainWindow(QMainWindow):
 
         self.ui.mapImageView.setPixmap(pix)
 
-        #This 2 are responsible for sending the offboard and arming commands through the terminal.
-        #Maybe not ideal solution considering the screen "freezes" while its being processed
-    #def offboard_command(self):
-    #    print("Offboard command via terminal...")
-    #    cmd = 'ros2 service call /px4/offboard std_srvs/srv/SetBool "{data: true}"'
-    #    exit_code = os.system(cmd)
-    #    if exit_code == 0:
-    #        print("Command for offboard executed successfully in terminal.")
-    #    else:
-    #        print(f"Command for offboard failed with exit code: {exit_code}")
-
-    #def arming_command(self):
-    #    print("Arming command via terminal...")
-    #    cmd = 'ros2 service call /px4/arm std_srvs/srv/SetBool "{data: true}"'
-    #    exit_code = os.system(cmd)
-    #    if exit_code == 0:
-    #            print("Command for arming executed successfully in terminal.")
-    #    else:
-    #            print(f"Command for arming failed with exit code: {exit_code}")
-
-    # Close Event
-
     def update_ping_ui(self, ping_ms):
         self.ui.labelPing.setText(f"Ping: {ping_ms:.1f} ms")
 
@@ -646,7 +520,6 @@ class MainWindow(QMainWindow):
             color = "red"
 
         self.ui.labelPing.setStyleSheet(f"color: {color}; font-weight: bold;")
-
 
     def handle_ping_failure(self, reason):
         self.ui.labelPing.setText("Ping: timeout")
@@ -757,6 +630,7 @@ class MainWindow(QMainWindow):
 
     def update_gps_label(self, text):
         self.ui.gpsLabel.setText(text)
+        self.ui.gpsLabel_2.setText(text)
 
     def update_gps_rtk_label(self, text):
         self.ui.gpsrtkLabel.setText(text)
@@ -774,11 +648,13 @@ class MainWindow(QMainWindow):
 
         if not self.current_tree_path:
             self.compass_widget.clear_target()
+            self.compass_widget_2.clear_target()
             return
 
         if self.next_tree_index >= len(self.current_tree_path):
             print("All trees reached.")
             self.compass_widget.clear_target()
+            self.compass_widget_2.clear_target()
             return
 
         robot_lat, robot_lon = self.current_robot_position
@@ -809,6 +685,7 @@ class MainWindow(QMainWindow):
             if self.next_tree_index >= len(self.current_tree_path):
                 print("All trees reached.")
                 self.compass_widget.clear_target()
+                self.compass_widget_2.clear_target()
                 return
 
             tree_lat, tree_lon = self.current_tree_path[self.next_tree_index]
@@ -839,12 +716,27 @@ class MainWindow(QMainWindow):
             f"relative={relative_bearing:.1f}°"
         )
 
-        self.compass_widget.set_target(
-            relative_bearing,
-            distance,
-            tree_lat,
-            tree_lon
-        )
+        for compass in (self.compass_widget, self.compass_widget_2):
+            compass.set_target(
+                relative_bearing,
+                distance,
+                tree_lat,
+                tree_lon
+            )
+
+    def add_rosout_log(self, text):
+        self.ui.rosoutTextEdit.appendPlainText(text)
+
+        #Limit log to 500 to avoid slowing laptop(not sure it is a big worry)
+        max_lines = 500
+        document = self.ui.rosoutTextEdit.document()
+
+        while document.blockCount() > max_lines:
+            cursor = self.ui.rosoutTextEdit.textCursor()
+            cursor.movePosition(cursor.MoveOperation.Start)
+            cursor.select(cursor.SelectionType.BlockUnderCursor)
+            cursor.removeSelectedText()
+            cursor.deleteChar()
 
     def closeEvent(self, event):
         if hasattr(self, "video") and self.video is not None:

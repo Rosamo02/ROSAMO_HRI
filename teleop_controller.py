@@ -1,16 +1,11 @@
-# teleop_controller.py
 from PySide6.QtCore import QObject
-from geometry_msgs.msg import Twist
+
 
 class TeleopController(QObject):
     def __init__(self, teleop_node):
         super().__init__()
         self.node = teleop_node
 
-        #Initial Speed
-        self.speed_scale = 0.0
-
-        # Track key states
         self.keys_down = {
             "space": False,
             "w": False,
@@ -19,6 +14,7 @@ class TeleopController(QObject):
             "d": False,
             "c": False
         }
+
         self.linear = 0.0
         self.angular = 0.0
         self.tool = 0.0
@@ -43,20 +39,13 @@ class TeleopController(QObject):
         if not self.keys_down["space"]:
             self.linear = 0.0
             self.angular = 0.0
+            self.tool = 0.0
         else:
-            self.base_linear = 1.0 if self.keys_down["w"] else -1.0 if self.keys_down["s"] else 0.0
-            self.base_angular = 1.0 if self.keys_down["a"] else -1.0 if self.keys_down["d"] else 0.0
-            self.base_tool = 1.0 if self.keys_down["c"] else 0.0
-
-            self.angular = self.base_angular * self.speed_scale
-            self.linear = self.base_linear * self.speed_scale
-            self.tool = self.base_tool * self.speed_scale
+            self.linear = 1.0 if self.keys_down["w"] else -1.0 if self.keys_down["s"] else 0.0
+            self.angular = 1.0 if self.keys_down["a"] else -1.0 if self.keys_down["d"] else 0.0
+            self.tool = 1.0 if self.keys_down["c"] else 0.0
 
         self.send_cmd()
 
     def send_cmd(self):
-        msg = Twist()
-        msg.linear.x = self.linear
-        msg.angular.z = self.angular
-        msg.linear.z = self.tool
-        self.node.pub.publish(msg)
+        self.node.send_cmd(self.linear, self.angular, self.tool)

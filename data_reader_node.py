@@ -1,7 +1,7 @@
 from time import monotonic
 import subprocess
 import math
-
+from std_msgs.msg import Float32
 from rclpy.node import Node
 from px4_msgs.msg import VehicleStatus, VehicleOdometry
 from sensor_msgs.msg import BatteryState
@@ -13,7 +13,6 @@ from rclpy.qos import (
 )
 from PySide6.QtCore import QObject, Signal
 
-
 class BatterySignalBridge(QObject):
     battery_updated = Signal(int, float)
     arming_updated = Signal(str)
@@ -21,6 +20,7 @@ class BatterySignalBridge(QObject):
     time_left_updated = Signal(str)
     connection_updated = Signal(str)
     odom_updated = Signal(str)
+    distance_updated = Signal(str)
 
 
 class BatteryNode(Node):
@@ -69,6 +69,14 @@ class BatteryNode(Node):
             px4_status_qos
         )
 
+
+        self.distance_sub = self.create_subscription(
+            Float32,
+            '/pole_distance',
+            self.distance_callback,
+            battery_qos
+        )
+
         self.time_left_timer = self.create_timer(2.0, self.update_time_left)
         self.status_watchdog_timer = self.create_timer(0.5, self.check_status_timeout)
 
@@ -80,6 +88,18 @@ class BatteryNode(Node):
         self.current_current = float(msg.current)
         self.current_charge = float(msg.charge)
         self.signals.battery_updated.emit(int(self.current_percent), self.current_current)
+
+    def distance_callback(self, msg: Float32):
+        distance = float(msg.data)
+
+        print(
+            f"POLE DISTANCE RX: {distance:.3f} m",
+            flush=True
+        )
+
+        self.signals.distance_updated.emit(
+            f"Distance to tree: {distance:.2f} m"
+        )
 
     def update_time_left(self):
         if (

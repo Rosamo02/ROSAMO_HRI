@@ -60,6 +60,21 @@ class HMICommandClient:
         self.pubstartrtk = node.create_publisher(Empty, "/start_rtk_ntrip", qos_best_effort)
         self.pubstoprtk = node.create_publisher(Empty, "/stop_rtk_ntrip", qos_best_effort)
 
+        self.pubstartpole = node.create_publisher(Empty, "/start_pole_detector", qos_best_effort)
+        self.pubstoppole = node.create_publisher(Empty, "/stop_pole_detector", qos_best_effort)
+
+        self.pubsafetystop = node.create_publisher(
+            Empty,
+            "/safety/stop",
+            qos_best_effort,
+        )
+
+        self.pubsafetyreset = node.create_publisher(
+            Empty,
+            "/safety/reset",
+            qos_best_effort,
+        )
+
         #store the buttons in the class
         self.screen_button = screen_button
         self.lq_screen_button = lq_screen_button
@@ -102,6 +117,20 @@ class HMICommandClient:
         else:
             self.send("stop_debug")
             self.i_debug = False
+
+    def start_lidar(self):
+        """Start the Livox LiDAR driver."""
+        self.send_empty(
+            self.pubstartlivox,
+            "/start_livox_driver",
+        )
+
+    def start_tree_detector(self):
+        """Start the pole/tree detector."""
+        self.send_empty(
+            self.pubstartpole,
+            "/start_pole_detector",
+                )
 
     def start_stop_Lidar_Map_msg(self):
         if not self.i_Lmap:
@@ -235,3 +264,17 @@ class HMICommandClient:
             self.i_front_camera = False
             if self.apriltag_button is not None:
                 self.apriltag_button.setText("Turn On RealSense Camera")
+
+    def safety_stop(self):
+        """Send the latched emergency stop command to the rover."""
+        self.send_empty(
+            self.pubsafetystop,
+            "/safety/stop",
+        )
+
+    def safety_reset(self):
+        """Clear the rover's latched safety stop."""
+        self.send_empty(
+            self.pubsafetyreset,
+            "/safety/reset",
+        )

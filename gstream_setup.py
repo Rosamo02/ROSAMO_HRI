@@ -15,7 +15,7 @@ def setup_gstreamer_window(window):
     pipeline_cam0 = (
         'udpsrc address=:: port=5000 buffer-size=4194304 '
         'caps="application/x-rtp,media=video,encoding-name=H264,payload=96,clock-rate=90000" ! '
-        'rtpjitterbuffer latency=250 drop-on-latency=true do-lost=true ! '
+        'rtpjitterbuffer latency=50 drop-on-latency=true do-lost=true ! '
         'rtph264depay ! h264parse ! avdec_h264 ! '
         'videoconvert ! video/x-raw,format=RGB ! '
         'appsink name=appsink emit-signals=true max-buffers=1 drop=true sync=false'
@@ -24,7 +24,7 @@ def setup_gstreamer_window(window):
     pipeline_cam0_lq = (
         'udpsrc address=:: port=5002 buffer-size=4194304 '
         'caps="application/x-rtp,media=video,encoding-name=H264,payload=96,clock-rate=90000" ! '
-        'rtpjitterbuffer latency=200 drop-on-latency=true do-lost=true ! '
+        'rtpjitterbuffer latency=75 drop-on-latency=true do-lost=true ! '
         'rtph264depay ! h264parse ! avdec_h264 ! '
         'videoconvert ! video/x-raw,format=RGB ! '
         'appsink name=appsink emit-signals=true max-buffers=1 drop=true sync=false'
@@ -33,7 +33,7 @@ def setup_gstreamer_window(window):
     pipeline_cam1 = (
         'udpsrc address=:: port=5001 buffer-size=4194304 '
         'caps="application/x-rtp,media=video,encoding-name=H264,payload=96,clock-rate=90000" ! '
-        'rtpjitterbuffer latency=250 drop-on-latency=true do-lost=true ! '
+        'rtpjitterbuffer latency=50 drop-on-latency=true do-lost=true ! '
         'rtph264depay ! h264parse ! avdec_h264 ! '
         'videoconvert ! video/x-raw,format=RGB ! '
         'appsink name=appsink emit-signals=true max-buffers=1 drop=true sync=false'
@@ -42,7 +42,7 @@ def setup_gstreamer_window(window):
     pipeline_cam1_lq = (
         'udpsrc address=:: port=5003 buffer-size=4194304 '
         'caps="application/x-rtp,media=video,encoding-name=H264,payload=96,clock-rate=90000" ! '
-        'rtpjitterbuffer latency=200 drop-on-latency=true do-lost=true ! '
+        'rtpjitterbuffer latency=75 drop-on-latency=true do-lost=true ! '
         'rtph264depay ! h264parse ! avdec_h264 ! '
         'videoconvert ! video/x-raw,format=RGB ! '
         'appsink name=appsink emit-signals=true max-buffers=1 drop=true sync=false'
@@ -56,41 +56,43 @@ def setup_gstreamer_window(window):
     window.secondary_camera_widget_lq = GstVideoWidget(pipeline_cam1_lq)
 
     window.primary_camera_widget.set_toolpath_pixels([
-        (158, 392), (188, 364), (218, 338), (248, 318),
-        (278, 302), (308, 294), (338, 290), (368, 292),
-        (398, 300), (428, 313), (458, 331), (488, 354),
-        (518, 379), (548, 408),
+        (148, 372),  # Extra point on the left
+        (178, 354), (208, 337), (238, 322), (268, 310),
+        (298, 301), (328, 296), (358, 293), (388, 295),
+        (418, 300), (448, 308), (478, 320), (508, 335),
+        (538, 352), (568, 370),
     ])
 
     window.primary_camera_widget_lq.set_toolpath_pixels([
-        (132, 327), (157, 303), (182, 282), (207, 265),
-        (232, 252), (257, 245), (282, 242), (307, 243),
-        (332, 250), (357, 261), (382, 276), (407, 295),
-        (432, 316), (457, 340),
+        (123, 310),  # Extra point on the left
+        (148, 295), (173, 281), (198, 268), (223, 258),
+        (248, 251), (273, 247), (298, 244), (323, 246),
+        (348, 250), (373, 257), (398, 267), (423, 279),
+        (448, 293), (473, 308),
     ])
 
     window.secondary_camera_widget.set_toolpath_pixels([
-        (360, 204), (358, 233), (351, 261), (341, 287),
-        (326, 310), (309, 329), (289, 343), (268, 351),
-        (245, 354), (223, 351), (201, 343), (182, 329),
-        (164, 310), (150, 287), (139, 261), (133, 233),
-        (131, 204), (133, 175), (139, 147), (150, 120),
-        (164, 98), (182, 79), (201, 65), (223, 57),
-        (245, 54), (268, 57), (289, 65), (309, 79),
-        (326, 98), (341, 120), (351, 147), (358, 175),
-        (360, 204),
+        (360, 214), (358, 243), (351, 271), (341, 297),
+        (326, 320), (309, 339), (289, 353), (268, 361),
+        (245, 364), (223, 361), (201, 353), (182, 339),
+        (164, 320), (150, 297), (139, 271), (133, 243),
+        (131, 214), (133, 185), (139, 157), (150, 130),
+        (164, 108), (182, 89), (201, 75), (223, 67),
+        (245, 64), (268, 67), (289, 75), (309, 89),
+        (326, 108), (341, 130), (351, 157), (358, 185),
+        (360, 214),
     ])
 
     window.secondary_camera_widget_lq.set_toolpath_pixels([
-        (360, 204), (358, 233), (351, 261), (341, 287),
-        (326, 310), (309, 329), (289, 343), (268, 351),
-        (245, 354), (223, 351), (201, 343), (182, 329),
-        (164, 310), (150, 287), (139, 261), (133, 233),
-        (131, 204), (133, 175), (139, 147), (150, 120),
-        (164, 98), (182, 79), (201, 65), (223, 57),
-        (245, 54), (268, 57), (289, 65), (309, 79),
-        (326, 98), (341, 120), (351, 147), (358, 175),
-        (360, 204),
+        (360, 214), (358, 243), (351, 271), (341, 297),
+        (326, 320), (309, 339), (289, 353), (268, 361),
+        (245, 364), (223, 361), (201, 353), (182, 339),
+        (164, 320), (150, 297), (139, 271), (133, 243),
+        (131, 214), (133, 185), (139, 157), (150, 130),
+        (164, 108), (182, 89), (201, 75), (223, 67),
+        (245, 64), (268, 67), (289, 75), (309, 89),
+        (326, 108), (341, 130), (351, 157), (358, 185),
+        (360, 214),
     ])
 
     window.ui.videoLayout.addWidget(window.primary_camera_widget)

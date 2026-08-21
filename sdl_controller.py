@@ -68,19 +68,25 @@ class SDLController:
         teleop = self.main.teleop_controller
         value = axis_event.value / 32767.0
 
-        # Deadzone to reduce drift and false inputs , which have been a problem
+        # Deadzone
         if abs(value) < 0.03:
             value = 0.0
 
         scaled_value = value
 
-        #if the joystick moves on the left controller axis x, angular takes the value of scaled,
-        #else if the joystick moves on the left controller axis y,
-        #then linear takes the value of scaled
         if axis_event.axis == sdl2.SDL_CONTROLLER_AXIS_LEFTX:
             teleop.angular = -scaled_value
+
         elif axis_event.axis == sdl2.SDL_CONTROLLER_AXIS_LEFTY:
             teleop.linear = -scaled_value
+
+        elif axis_event.axis == sdl2.SDL_CONTROLLER_AXIS_TRIGGERLEFT:
+            trigger_value = max(0.0, axis_event.value / 32767.0)
+
+            if trigger_value > 0.1 and self.rb_down:
+                teleop.tool = -1.0
+            else:
+                teleop.tool = 0.0
 
     def handle_button(self, button_event, pressed):
         if self.main.current_mode != "controller":

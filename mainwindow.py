@@ -202,6 +202,12 @@ class MainWindow(QMainWindow):
         self.ui.routerToggler.clicked.connect(self.command_client.start_stop_ros2router_msg)
         self.ui.maincameraToggler.clicked.connect(self.command_client.start_stop_back_camera)
         self.ui.rtkToggler.clicked.connect(self.command_client.start_stop_rtk)
+        self.ui.startlidarButton.clicked.connect(self.command_client.start_lidar)
+        self.ui.starttreedetectorButton.clicked.connect(self.command_client.start_tree_detector)
+
+        #Safety buttons
+        self.ui.safetystopButton.clicked.connect(self.command_client.safety_stop)
+        self.ui.safetyresetButton.clicked.connect(self.command_client.safety_reset)
 
         self.current_mode = "keyboard"
         self.ui.toggleInputButton.clicked.connect(self.on_toggleInputButton_clicked)
@@ -263,6 +269,7 @@ class MainWindow(QMainWindow):
         self.battery_node.signals.offboard_updated.connect(self.update_offboard_ui)
         self.battery_node.signals.connection_updated.connect(self.update_connection_ui)
         self.battery_node.signals.odom_updated.connect(self.update_velocimeter_ui)
+        self.battery_node.signals.distance_updated.connect(self.update_distance_ui)
         self.gps_position_node.signals.gps_label_message.connect(self.update_gps_label)
         self.gps_position_node.signals.gps_rtk_message.connect(self.update_gps_rtk_label)
         print("checkpoint 25")
@@ -341,6 +348,10 @@ class MainWindow(QMainWindow):
     def update_velocimeter_ui(self, odom_text):
         self.ui.linearspeedLabel.setText(odom_text)#This label needs to be repeated, tey are the same on different pages
         self.ui.linearspeedLabel_2.setText(odom_text)
+
+    def update_distance_ui(self, distance_text):
+        self.ui.distanceLabel.setText(distance_text)
+        self.ui.distanceLabel_2.setText(distance_text)
 
     def update_arming_ui(self, status_text):#neither working
         self.ui.armLabel.setText(status_text)

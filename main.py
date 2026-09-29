@@ -1,3 +1,6 @@
+#Entry point of the application.
+#This file initializes the application and starts the graphical interface. It is responsible for setting up the main Qt application environment before displaying the HRI.
+
 import sys
 import traceback
 from PySide6.QtWidgets import QApplication

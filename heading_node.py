@@ -13,7 +13,7 @@ class HeadingSignals(QObject):
     heading_updated = Signal(float)
     heading_label_message = Signal(str)
 
-
+#The purpose of the class is to read the robot heading from PX4, validate it, convert it from radians to degrees, and send it to the HMI.
 class HeadingNode(Node):
     def __init__(self):
         super().__init__("heading_node")
@@ -49,6 +49,7 @@ class HeadingNode(Node):
         # Always emit heading so the compass can still work for UI guidance
         self.signals.heading_updated.emit(heading_deg)
 
+        #Heading might not be good enough for control
         if not msg.heading_good_for_control:
             self.signals.heading_label_message.emit("Heading not good enough")
             return

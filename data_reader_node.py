@@ -13,6 +13,7 @@ from rclpy.qos import (
 )
 from PySide6.QtCore import QObject, Signal
 
+#The first class is just the bridge between ROS 2 and the GUI
 class BatterySignalBridge(QObject):
     battery_updated = Signal(int, float)
     arming_updated = Signal(str)
@@ -22,9 +23,11 @@ class BatterySignalBridge(QObject):
     odom_updated = Signal(str)
     distance_updated = Signal(str)
 
-
+#It acts as a general robot-status monitoring node for the HMI.
 class BatteryNode(Node):
     def __init__(self):
+
+        #Initializing the node
         super().__init__('battery_node')
         self.signals = BatterySignalBridge()
 
@@ -41,10 +44,12 @@ class BatteryNode(Node):
             depth=10,
         )
 
+        #Internal state variables
         self.current_percent = None
         self.current_current = None
         self.current_charge = None
 
+        #These are used to monitor PX4 status messages
         self.last_status_rx_time = None
         self.last_status_timestamp = 0
 
@@ -84,24 +89,28 @@ class BatteryNode(Node):
         self.connection_timer = self.create_timer(3.0, self.update_connection_status)
 
     def battery_callback(self, msg: BatteryState):
+        # msg.percentage is converted from a value between approximately 0 and 1 into a percentage between 0 and 100.
+        # The min() and max() functions ensure that the displayed value cannot go below 0% or above 100%.
         self.current_percent = max(0.0, min(100.0, msg.percentage * 100.0))
         self.current_current = float(msg.current)
         self.current_charge = float(msg.charge)
+        #sends the battery percentage and current to the GUI.
         self.signals.battery_updated.emit(int(self.current_percent), self.current_current)
 
     def distance_callback(self, msg: Float32):
         distance = float(msg.data)
-
+        #Prints the distance to the nearest tree on the terminal
         print(
             f"POLE DISTANCE RX: {distance:.3f} m",
             flush=True
         )
-
+        #emits it
         self.signals.distance_updated.emit(
             f"Distance to tree: {distance:.2f} m"
         )
 
     def update_time_left(self):
+        #In case you do not have the full information, return nothing
         if (
             self.current_percent is None
             or self.current_current is None
@@ -175,6 +184,7 @@ class BatteryNode(Node):
         self.signals.connection_updated.emit(status)
 
     def get_connection_status(self, peer_name: str) -> str:
+        #Run to find the current status of husarnet
         try:
             result = subprocess.run(
                 ["husarnet", "status"],
@@ -207,6 +217,7 @@ class BatteryNode(Node):
             return "Connection: None"
 
     def odom_callback(self, msg: VehicleOdometry):
+        #receive the odometry data from the robot
         vx = float(msg.velocity[0])
         vy = float(msg.velocity[1])
         vz = float(msg.velocity[2])

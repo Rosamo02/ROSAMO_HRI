@@ -1,7 +1,9 @@
 from PySide6.QtWidgets import QWidget, QTableWidgetItem
 from ui_alarmpage import Ui_AlarmPage
 from alarm import Alarm, AlarmSeverity
-
+#The AlarmPage class provides the graphical interface used to display alarms in the HMI.
+#It configures a table containing the alarm timestamp, severity, code and message.
+#New alarms can be added to the table using add_alarm(), while remove_alarm() searches for an alarm by its code and removes the corresponding row from the interface.
 class AlarmPage(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)

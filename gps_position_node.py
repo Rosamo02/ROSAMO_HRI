@@ -6,11 +6,10 @@ from PySide6.QtCore import QObject, Signal
 
 from px4_msgs.msg import SensorGps
 
-
 class GPSPositionSignals(QObject):
-    gps_updated = Signal(float, float)
-    gps_label_message = Signal(str)
-    gps_rtk_message = Signal(str)
+    gps_updated = Signal(float, float)#sends the latitude and longitude as two floating-point values.
+    gps_label_message = Signal(str)#sends a formatted text representation of the GPS coordinates.
+    gps_rtk_message = Signal(str)#sends information about the current GPS fix quality, including whether RTK is active.
 
 
 class GPSPositionNode(Node):
@@ -36,6 +35,8 @@ class GPSPositionNode(Node):
         print("GPSPositionNode subscribed to /fmu/out/vehicle_gps_position")
 
     def fix_type_to_text(self, fix_type):
+        #Reads the fix type
+        #converts the numerical PX4 GPS fix code into a human-readable description.
         fix_types = {
                 0: "No fix",
                 1: "No fix",
@@ -50,10 +51,10 @@ class GPSPositionNode(Node):
         return fix_types.get(fix_type, f"Unknown fix type {fix_type}")
 
     def vehicle_gps_position_callback(self, msg):
+        #Receives GPS 
         print("GPS callback received")
-
+        #takes the numerical GPS fix type from the PX4 message and converts it into readable text and emit it
         fix_text = self.fix_type_to_text(msg.fix_type)
-
         self.signals.gps_rtk_message.emit(
             f"GPS Fix: {fix_text} ({msg.fix_type})"
         )
@@ -61,18 +62,18 @@ class GPSPositionNode(Node):
         if msg.fix_type < 3:
             print(f"GPS fix not good enough: fix_type={msg.fix_type}")
             return
-
+        #extracts the latitude and longitude from the PX4 GPS message.
         lat = float(msg.latitude_deg)
         lon = float(msg.longitude_deg)
-
+        #One is not finite, creating invalid GPS
         if not math.isfinite(lat) or not math.isfinite(lon):
             print("Invalid GPS: not finite")
             return
-
+        #Coordinates outside the expected range
         if not (-90.0 <= lat <= 90.0 and -180.0 <= lon <= 180.0):
             print(f"Invalid GPS coordinates: lat={lat}, lon={lon}")
             return
-
+        #Print and emit the coordinates
         print(f"GPS position: lat={lat}, lon={lon}")
         self.signals.gps_updated.emit(lat, lon)
         self.signals.gps_label_message.emit(f"GPS Position: lat={lat:.7f},lon={lon:.7f}")

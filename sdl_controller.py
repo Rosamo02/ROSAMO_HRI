@@ -3,18 +3,30 @@ import sdl2.ext
 import threading
 import time
 
+#Manages input from an SDL2-compatible game controller.
+
+#Converts joystick and button inputs into movement and tool commands for the robot. Commands are sent at a fixed frequency of 20 Hz.
+
+#The right shoulder button (RB) acts as a deadman switch, preventing robot movement when it is not pressed.
 
 class SDLController:
     def __init__(self, mainwindow):
+
+        #Initializes the SDL2 controller system, detects connected controllers, and starts a background thread for input processing.
+        #mainwindow: Reference to the main HMI window, providing access to the current control mode and teleoperation controller.
+        
         self.main = mainwindow
         self.rb_down = False
 
+        #Initialize the SDL2 game controller subsystem
         print("\n[SDL2] Initializing controller system...")
         sdl2.SDL_Init(sdl2.SDL_INIT_GAMECONTROLLER)
 
+        #Detect the number of connected joystick devices
         num_joy = sdl2.SDL_NumJoysticks()
         print(f"[SDL2] Joysticks detected: {num_joy}")
 
+        #Search for the first compatible game controller
         self.controller = None
         for i in range(num_joy):
             if sdl2.SDL_IsGameController(i):
@@ -23,6 +35,7 @@ class SDLController:
                       sdl2.SDL_GameControllerName(self.controller))
                 break
 
+        #Display a warning if no compatible controller was found
         if self.controller is None:
             print("No controller detected")
 
@@ -30,10 +43,16 @@ class SDLController:
         self.publish_rate = 20.0
         self.publish_period = 1.0 / self.publish_rate
 
+        #Start a daemon thread to continuously process controller inputs
         self.thread = threading.Thread(target=self.poll, daemon=True)
         self.thread.start()
 
     def poll(self):
+
+        #Continuously processes SDL2 controller events and publishes teleoperation commands at a fixed frequency.
+
+        #Handles joystick movements, button presses, and button releases while maintaining the configured command publication rate.
+
         event = sdl2.SDL_Event()
         next_publish_time = time.monotonic()
 
@@ -58,10 +77,17 @@ class SDLController:
                 # Prevent drift if loop falls behind badly
                 if now > next_publish_time + self.publish_period:
                     next_publish_time = now + self.publish_period
-
+            #Introduce a short delay to avoid excessive CPU usage
             sdl2.SDL_Delay(1)
 
     def handle_axis(self, axis_event):
+
+        #Processes joystick and trigger movements.
+
+        #Maps the left joystick to linear and angular movement,and the left trigger to reverse tool operation.
+
+        #Inputs are ignored when the HMI is not in controller mode.
+        
         if self.main.current_mode != "controller":
             return
 
@@ -89,6 +115,13 @@ class SDLController:
                 teleop.tool = 0.0
 
     def handle_button(self, button_event, pressed):
+
+        #Processes controller button presses and releases.
+
+        #The right shoulder button (RB) acts as a deadman switch. Releasing it immediately sends a zero-velocity command.
+
+        #The left shoulder button (LB) activates forward tool operation when the deadman switch is pressed.
+        
         if self.main.current_mode != "controller":
             return
 

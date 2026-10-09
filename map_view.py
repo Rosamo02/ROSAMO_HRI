@@ -1,7 +1,8 @@
 from PySide6.QtWebEngineCore import QWebEngineSettings, QWebEnginePage
 from PySide6.QtCore import QUrl
 import os
-
+#Configures the QWebEngineView widget to display the HTML-based map.
+#Enables JavaScript, allows access to local and remote resources, configures geolocation permissions, and loads the map HTML file.
 def setup_map(view):
     settings = view.settings()
     settings.setAttribute(QWebEngineSettings.JavascriptEnabled, True)

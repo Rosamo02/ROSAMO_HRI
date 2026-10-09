@@ -26,6 +26,11 @@ def setup_map(view):
             )
 
     page.featurePermissionRequested.connect(handle_permission)
-
-    html_path = "/home/rodrigomoreira/Rosamo_3/map_assets/map.html"
+    # Get the directory where this Python script is located
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # Build the path to the HTML file inside the map_assets folder
+    html_path = os.path.join(script_dir, "map_assets", "map.html")
+    
+    # Load the local HTML map into the QWebEngineView widget
     view.load(QUrl.fromLocalFile(html_path))
